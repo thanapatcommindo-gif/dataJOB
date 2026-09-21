@@ -1,0 +1,9 @@
+# Large raw unoptimized files (>100MB limit on GitHub)
+พื้นที่เสี่ยง 1รวม.xlsx
+ได้รับจัดสรร งบแผนน้ำ_เชียงใหม่ (65-70)-ผอ เจนศ.xlsx
+ไม่มีชื่อโฟลเดอร์/
+
+# System and Cache
+.DS_Store
+__pycache__/
+*.pyc

@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ระบบสารสนเทศภูมิศาสตร์ (GIS) การบริหารจัดการน้ำและภัยพิบัติ จ.เชียงใหม่</title>
+  <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
+  <style>
+    :root {
+      --primary: #1a73e8;
+      --primary-dark: #1557b0;
+      --bg: #f8fafd;
+      --card-bg: #ffffff;
+      --text-main: #202124;
+      --text-sub: #5f6368;
+      --border: #e8eaed;
+      --shadow: 0 4px 12px rgba(60,64,67, 0.08);
+      --shadow-hover: 0 8px 24px rgba(60,64,67, 0.16);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Prompt', 'Google Sans', sans-serif; }
+    body { background-color: var(--bg); color: var(--text-main); min-height: 100vh; display: flex; flex-direction: column; }
+    
+    header {
+      background: #ffffff;
+      border-bottom: 1px solid var(--border);
+      padding: 18px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 1px 3px rgba(60,64,67, 0.08);
+    }
+    .brand { display: flex; align-items: center; gap: 14px; }
+    .brand-logo {
+      width: 44px; height: 44px;
+      background: linear-gradient(135deg, #1a73e8, #185abc);
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      color: #fff; font-size: 26px;
+    }
+    .brand h1 { font-size: 1.15rem; font-weight: 700; color: #1a73e8; letter-spacing: -0.2px; }
+    .brand p { font-size: 0.8rem; color: var(--text-sub); }
+
+    .hero {
+      text-align: center;
+      padding: 50px 20px 30px;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #e8f0fe;
+      color: #1a73e8;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-bottom: 16px;
+    }
+    .hero h2 {
+      font-size: 2.2rem;
+      font-weight: 700;
+      line-height: 1.3;
+      margin-bottom: 14px;
+      color: #202124;
+    }
+    .hero p {
+      font-size: 1.05rem;
+      color: var(--text-sub);
+      line-height: 1.6;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+      flex: 1;
+      width: 100%;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+      gap: 28px;
+      margin-bottom: 40px;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+    .card:hover {
+      transform: translateY(-6px);
+      box-shadow: var(--shadow-hover);
+      border-color: #d2e3fc;
+    }
+
+    .card-banner {
+      height: 140px;
+      padding: 24px;
+      display: flex;
+      align-items: flex-end;
+      color: #fff;
+      position: relative;
+    }
+    .banner-macro {
+      background: linear-gradient(135deg, #1a73e8 0%, #0d47a1 100%);
+    }
+    .banner-micro {
+      background: linear-gradient(135deg, #ea4335 0%, #b31412 100%);
+    }
+    .card-badge {
+      position: absolute;
+      top: 18px;
+      right: 18px;
+      background: rgba(255,255,255,0.25);
+      backdrop-filter: blur(8px);
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: #fff;
+    }
+    .card-banner h3 {
+      font-size: 1.3rem;
+      font-weight: 700;
+      text-shadow: 0 1px 3px rgba(0,0,0,0.3);
+    }
+
+    .card-body {
+      padding: 24px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+    .card-desc {
+      font-size: 0.92rem;
+      color: var(--text-sub);
+      line-height: 1.55;
+      margin-bottom: 20px;
+    }
+
+    .metrics-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      background: #f8f9fa;
+      padding: 14px;
+      border-radius: 12px;
+      margin-bottom: 24px;
+      text-align: center;
+    }
+    .metric-item .val {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: #202124;
+    }
+    .metric-item .lbl {
+      font-size: 0.72rem;
+      color: var(--text-sub);
+      margin-top: 2px;
+    }
+
+    .feature-list {
+      list-style: none;
+      margin-bottom: 24px;
+      flex: 1;
+    }
+    .feature-list li {
+      font-size: 0.88rem;
+      color: #3c4043;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .feature-list .material-symbols-outlined {
+      color: #34a853;
+      font-size: 18px;
+    }
+
+    .btn-launch {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      padding: 14px 20px;
+      border-radius: 12px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: background 0.2s;
+    }
+    .btn-primary {
+      background: #1a73e8;
+      color: #ffffff;
+    }
+    .btn-primary:hover {
+      background: #1557b0;
+    }
+    .btn-danger {
+      background: #ea4335;
+      color: #ffffff;
+    }
+    .btn-danger:hover {
+      background: #d93025;
+    }
+
+    .resources-section {
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 24px 30px;
+      margin-top: 10px;
+      box-shadow: var(--shadow);
+    }
+    .resources-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+    .resources-header h3 { font-size: 1.1rem; color: var(--text-main); font-weight: 600; }
+    .resources-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 16px;
+    }
+    .resource-card {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 14px 18px;
+      background: #f8f9fa;
+      border-radius: 12px;
+      text-decoration: none;
+      color: var(--text-main);
+      border: 1px solid #e8eaed;
+      transition: all 0.2s;
+    }
+    .resource-card:hover {
+      background: #e8f0fe;
+      border-color: #aecbfa;
+      color: #1a73e8;
+    }
+    .resource-icon {
+      font-size: 28px;
+      color: #1a73e8;
+    }
+    .resource-info h4 { font-size: 0.88rem; font-weight: 600; }
+    .resource-info p { font-size: 0.75rem; color: var(--text-sub); }
+
+    footer {
+      text-align: center;
+      padding: 24px;
+      font-size: 0.82rem;
+      color: var(--text-sub);
+      border-top: 1px solid var(--border);
+      background: #ffffff;
+      margin-top: auto;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="brand">
+      <div class="brand-logo">
+        <span class="material-symbols-outlined">water_drop</span>
+      </div>
+      <div>
+        <h1>ระบบสารสนเทศภูมิศาสตร์บริหารจัดการน้ำ จ.เชียงใหม่</h1>
+        <p>Chiang Mai Water & Flood Spatial Intelligence Portal</p>
+      </div>
+    </div>
+    <div style="display: flex; align-items: center; gap: 8px;">
+      <span class="material-symbols-outlined" style="color: #34a853; font-size: 18px;">cloud_done</span>
+      <span style="font-size: 0.82rem; color: var(--text-sub); font-weight: 500;">ระบบพร้อมใช้งาน</span>
+    </div>
+  </header>
+
+  <div class="hero">
+    <div class="hero-badge">
+      <span class="material-symbols-outlined" style="font-size: 16px;">map</span>
+      Google Maps Interactive Web GIS
+    </div>
+    <h2>ศูนย์ข้อมูลแผนที่และวิเคราะห์เชิงพื้นที่</h2>
+    <p>ระบบบูรณาการแผนงานบริหารจัดการน้ำ 5 ด้าน งบประมาณจัดสรร 3.5 หมื่นล้านบาท และพิกัดสำรวจความเสียหายน้ำท่วมกลุ่มเปราะบางระดับหลังคาเรือน</p>
+  </div>
+
+  <main class="container">
+    <div class="grid">
+      
+      <!-- Card 1: Macro District Water Plan -->
+      <div class="card">
+        <div class="card-banner banner-macro">
+          <div class="card-badge">ระดับมหภาค (Macro GIS)</div>
+          <h3>1. แผนแม่บทน้ำ 5 ด้าน vs งบประมาณ</h3>
+        </div>
+        <div class="card-body">
+          <p class="card-desc">
+            วิเคราะห์เปรียบเทียบช่องว่าง (Gap Analysis) ความเสี่ยงน้ำ 5 มิติ กับงบประมาณจัดสรร 2565–2570 ราย 25 อำเภอ ในรูปแบบ Google Maps แผนที่คู่ขนาน (Dual Sync Map)
+          </p>
+
+          <div class="metrics-row">
+            <div class="metric-item">
+              <div class="val" style="color:#1a73e8;">3.5 หมื่นล.</div>
+              <div class="lbl">งบประมาณรวม</div>
+            </div>
+            <div class="metric-item">
+              <div class="val">6,312</div>
+              <div class="lbl">โครงการน้ำ</div>
+            </div>
+            <div class="metric-item">
+              <div class="val" style="color:#ea4335;">2,200</div>
+              <div class="lbl">หมู่บ้านเสี่ยง</div>
+            </div>
+          </div>
+
+          <ul class="feature-list">
+            <li><span class="material-symbols-outlined">check_circle</span> แผนที่เปรียบเทียบ 2 ฝั่ง ซูมเลื่อนตามกันแบบ Real-time</li>
+            <li><span class="material-symbols-outlined">check_circle</span> แถบค้นหาอำเภอพร้อมป้ายข้อมูล (Pill Badges) สไตล์ Google Maps</li>
+            <li><span class="material-symbols-outlined">check_circle</span> การ์ดวิเคราะห์ Gap จัดสรรงบประมาณต่อจุดเสี่ยง</li>
+          </ul>
+
+          <a href="ChiangMai_Water_GIS_Dashboard.html" class="btn-launch btn-primary">
+            <span>เปิดแดชบอร์ดแผนแม่บทน้ำ</span>
+            <span class="material-symbols-outlined">arrow_forward</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- Card 2: Micro Household Flood Survey -->
+      <div class="card">
+        <div class="card-banner banner-micro">
+          <div class="card-badge">ระดับจุลภาค (Micro GIS)</div>
+          <h3>2. พิกัดสำรวจน้ำท่วม & กลุ่มเปราะบาง</h3>
+        </div>
+        <div class="card-body">
+          <p class="card-desc">
+            แผนที่ระบุพิกัดหลังคาเรือน 4,450 หลังคาเรือน (หนองหอย, ท่าวังตาล, หนองผึ้ง, นครเชียงใหม่) พร้อมระบุตำแหน่งผู้ป่วยติดเตียง ผู้พิการ และผู้สูงอายุ สำหรับภารกิจกู้ภัย
+          </p>
+
+          <div class="metrics-row">
+            <div class="metric-item">
+              <div class="val" style="color:#ea4335;">4,450</div>
+              <div class="lbl">หลังคาเรือน</div>
+            </div>
+            <div class="metric-item">
+              <div class="val" style="color:#d93025;">217</div>
+              <div class="lbl">ผู้ป่วยติดเตียง/พิการ</div>
+            </div>
+            <div class="metric-item">
+              <div class="val">328.5 ล.</div>
+              <div class="lbl">มูลค่าเสียหาย</div>
+            </div>
+          </div>
+
+          <ul class="feature-list">
+            <li><span class="material-symbols-outlined">check_circle</span> ปักหมุดพิกัดจริงแยกสี (แดง: ติดเตียง, ส้ม: สูงอายุ, น้ำเงิน: ทั่วไป)</li>
+            <li><span class="material-symbols-outlined">check_circle</span> โหมด Heatmap แสดงความหนาแน่นและระดับน้ำท่วม</li>
+            <li><span class="material-symbols-outlined">check_circle</span> ค้นหาตามบ้านเลขที่ / ชื่อชุมชน / ระดับน้ำได้ทันที</li>
+          </ul>
+
+          <a href="ChiangMai_Flood_Household_GIS_Dashboard.html" class="btn-launch btn-danger">
+            <span>เปิดแดชบอร์ดพิกัดรายครัวเรือน</span>
+            <span class="material-symbols-outlined">arrow_forward</span>
+          </a>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Data Assets Section -->
+    <div class="resources-section">
+      <div class="resources-header">
+        <span class="material-symbols-outlined" style="color: #1a73e8; font-size: 24px;">folder_open</span>
+        <h3>ดาวน์โหลดชุดข้อมูลและโปรเจกต์ GIS (Master Data Assets)</h3>
+      </div>
+      <div class="resources-grid">
+        <a href="ChiangMai_Water_Risk_Budget_Dashboard.xlsx" class="resource-card" download>
+          <span class="material-symbols-outlined resource-icon">table_chart</span>
+          <div class="resource-info">
+            <h4>Master Excel แผนน้ำ (1.3 MB)</h4>
+            <p>พร้อมนำขึ้น Google Sheets</p>
+          </div>
+        </a>
+        <a href="ChiangMai_Flood_Household_Survey_Dashboard.xlsx" class="resource-card" download>
+          <span class="material-symbols-outlined resource-icon" style="color:#ea4335;">description</span>
+          <div class="resource-info">
+            <h4>Master Excel สำรวจน้ำท่วม (1.1 MB)</h4>
+            <p>4,450 ครัวเรือน พร้อมพิกัด</p>
+          </div>
+        </a>
+        <a href="ChiangMai_Water_QGIS_Project.qgs" class="resource-card" download>
+          <span class="material-symbols-outlined resource-icon" style="color:#34a853;">public</span>
+          <div class="resource-info">
+            <h4>โปรเจกต์ QGIS แผนน้ำ 25 อำเภอ</h4>
+            <p>พร้อมไฟล์สไตล์ .QML 3 รูปแบบ</p>
+          </div>
+        </a>
+        <a href="ChiangMai_Flood_Households_QGIS_Project.qgs" class="resource-card" download>
+          <span class="material-symbols-outlined resource-icon" style="color:#f29900;">pin_drop</span>
+          <div class="resource-info">
+            <h4>โปรเจกต์ QGIS พิกัดบ้าน 4,450 จุด</h4>
+            <p>พร้อมข้อมูลความเสียหายและกลุ่มเปราะบาง</p>
+          </div>
+        </a>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <p>ระบบบูรณาการสารสนเทศภูมิศาสตร์ (GIS) แผนแม่บทบริหารจัดการทรัพยากรน้ำและอุทกภัย จังหวัดเชียงใหม่ © 2026</p>
+  </footer>
+
+</body>
+</html>
