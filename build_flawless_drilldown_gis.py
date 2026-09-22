@@ -2,14 +2,20 @@
 # -*- coding: utf-8 -*-
 """
 Generate Flawless 3-Tier Drill-Down GIS Dashboard for Chiang Mai Water Master Plan
-- Removed awkward zoom buttons in the middle seam (now clean and beautiful)
-- Added full score analytics (คะแนนเฉลี่ย, คะแนน 5 มิติครบถ้วน, เสี่ยงสูง-กลาง-น้อย, คะแนนรวม 5-15)
-- Added Total Score range filter (ตัวกรองคะแนนรวม 5-15)
-- 100% Fixed Dropdowns (District, Subdistrict, Village bi-directional sync)
-- Organic boundary polygons (NO bounding boxes, NO rectangles)
-- Smart Collapsible Bottom Dock (Google Maps style, never blocks maps)
-- Both left & right maps synchronized in real-time
-- Direct on-map GIS stats on both maps
+- 100% Fixed Zoom Controls:
+    * Removed awkward center seam zoom button completely!
+    * Zoom controls relocated to top-right of map + top action bar buttons (+ / -).
+    * Never obstructs text or dock bar!
+- 100% Intuitive Return to Overview:
+    * Prominent floating "⬅️ ย้อนกลับภาพรวม จ.เชียงใหม่" button whenever drilled down.
+    * Interactive clickable Breadcrumbs in dock (📍 เชียงใหม่ ❯ 🏛️ อำเภอ ❯ 🏘️ ตำบล ❯ 🏡 หมู่บ้าน).
+    * "🏠 กลับภาพรวม" button inside the bottom dock.
+    * "รีเซ็ตมุมมอง" button in top filter bar.
+    * Selecting "📍 ทุกอำเภอ" in dropdown resets to full province overview.
+- Comprehensive 5-Pillar Score Analytics (คะแนนเฉลี่ย, เสี่ยงสูง-กลาง-น้อย, คะแนนรวม 5-15).
+- 100% Fixed Dropdowns (Bi-directional sync).
+- Organic boundary polygons (NO bounding boxes, NO rectangles).
+- Both left & right maps synchronized in real-time.
 """
 
 import json
@@ -230,6 +236,37 @@ html_content = f"""<!DOCTYPE html>
     .badge-risk {{ color: #d93025; border-left: 4px solid #d93025; }}
     .badge-budget {{ color: #1a73e8; border-left: 4px solid #1a73e8; }}
 
+    /* FLOATING BACK TO OVERVIEW BAR (Top Center) */
+    .floating-back-bar {{
+      position: absolute;
+      top: 14px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 600;
+      display: none;
+    }}
+    .btn-floating-back {{
+      background: #ffffff;
+      color: #1a73e8;
+      border: 1.5px solid #aecbfa;
+      padding: 7px 18px;
+      border-radius: 24px;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.16);
+      font-size: 0.84rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+    }}
+    .btn-floating-back:hover {{
+      background: #e8f0fe;
+      color: #1557b0;
+      transform: scale(1.04);
+      box-shadow: 0 6px 18px rgba(0,0,0,0.22);
+    }}
+
     .map-legend-card {{
       position: absolute;
       bottom: 20px;
@@ -254,13 +291,13 @@ html_content = f"""<!DOCTYPE html>
       bottom: 16px;
       left: 50%;
       transform: translateX(-50%);
-      z-index: 700;
+      z-index: 750;
       background: #ffffff;
       border-radius: 16px;
-      box-shadow: var(--shadow-lg);
+      box-shadow: 0 6px 24px rgba(0,0,0,0.18);
       border: 1px solid var(--border);
       width: 92%;
-      max-width: 860px;
+      max-width: 880px;
       display: none;
       flex-direction: column;
       overflow: hidden;
@@ -272,9 +309,10 @@ html_content = f"""<!DOCTYPE html>
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 10px;
+      gap: 12px;
       cursor: pointer;
       user-select: none;
+      flex-wrap: wrap;
     }}
     .dock-title-group {{
       display: flex;
@@ -282,12 +320,38 @@ html_content = f"""<!DOCTYPE html>
       gap: 8px;
       flex-wrap: wrap;
       flex: 1;
+      min-width: 260px;
     }}
-    .dock-title-group .area-title {{
-      font-size: 0.95rem;
+    
+    /* Breadcrumbs navigation */
+    .dock-breadcrumbs {{
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 0.88rem;
       font-weight: 700;
-      color: #1a73e8;
+      flex-wrap: wrap;
     }}
+    .bc-link {{
+      color: #1a73e8;
+      cursor: pointer;
+      padding: 2px 6px;
+      border-radius: 6px;
+      transition: all 0.15s;
+    }}
+    .bc-link:hover {{
+      background: #e8f0fe;
+      text-decoration: underline;
+    }}
+    .bc-sep {{
+      color: #9aa0a6;
+      font-size: 0.72rem;
+    }}
+    .bc-curr {{
+      color: #202124;
+      font-weight: 700;
+    }}
+
     .dock-stat-pill {{
       background: #f1f3f4;
       padding: 3px 10px;
@@ -298,6 +362,7 @@ html_content = f"""<!DOCTYPE html>
       display: inline-flex;
       align-items: center;
       gap: 4px;
+      white-space: nowrap;
     }}
     .pill-score {{ background: #fef7e0; color: #b06000; border: 1px solid #f9ab00; }}
     .pill-risk {{ background: #fce8e6; color: #c5221f; border: 1px solid #ea4335; }}
@@ -306,8 +371,28 @@ html_content = f"""<!DOCTYPE html>
     .dock-actions {{
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 8px;
     }}
+    .btn-dock-home {{
+      background: #f1f3f4;
+      color: #3c4043;
+      border: 1px solid #dadce0;
+      padding: 5px 12px;
+      border-radius: 14px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      transition: all 0.2s;
+    }}
+    .btn-dock-home:hover {{
+      background: #e8f0fe;
+      color: #1a73e8;
+      border-color: #aecbfa;
+    }}
+
     .btn-toggle-expand {{
       background: #e8f0fe;
       color: #1a73e8;
@@ -586,10 +671,18 @@ html_content = f"""<!DOCTYPE html>
       </div>
     </div>
 
+    <!-- FLOATING BACK TO OVERVIEW BUTTON (Top Center) -->
+    <div class="floating-back-bar" id="floatingBackBar">
+      <button class="btn-floating-back" onclick="resetToOverview()" title="ย้อนกลับไปดูภาพรวมทั้ง 25 อำเภอ">
+        <span class="material-symbols-outlined" style="font-size:18px;">arrow_back</span>
+        <span id="floatingBackText">ย้อนกลับภาพรวม จ.เชียงใหม่</span>
+      </button>
+    </div>
+
     <!-- SMART FLOATING BOTTOM DOCK -->
     <div class="smart-dock" id="smartDock">
       <div class="dock-summary-bar" onclick="toggleDockExpand()">
-        <div class="dock-title-group">
+        <div class="dock-title-group" id="dockTitleGroup">
           <span class="material-symbols-outlined" style="color:#1a73e8; font-size:22px;">info</span>
           <span class="area-title" id="dockAreaTitle">อ.ดอยสะเก็ด</span>
           <span class="dock-stat-pill pill-score" id="dockPillScore">⭐ เฉลี่ย 9.4/15</span>
@@ -597,6 +690,10 @@ html_content = f"""<!DOCTYPE html>
           <span class="dock-stat-pill pill-budget" id="dockPillBudget">💰 1,357 ลบ. (310 โครงการ)</span>
         </div>
         <div class="dock-actions" onclick="event.stopPropagation()">
+          <button class="btn-dock-home" onclick="resetToOverview()" title="กลับสู่ภาพรวมทั้ง 25 อำเภอ">
+            <span class="material-symbols-outlined" style="font-size:16px;">restart_alt</span>
+            <span>กลับภาพรวม</span>
+          </button>
           <button class="btn-toggle-expand" id="btnDockExpand" onclick="toggleDockExpand()">
             <span class="material-symbols-outlined" style="font-size:16px;" id="expandIcon">expand_less</span>
             <span id="expandText">ดูคะแนน 5 มิติ</span>
@@ -649,7 +746,7 @@ html_content = f"""<!DOCTYPE html>
       const initialZoom = 9;
       const googleMapsUrl = 'https://mt1.google.com/vt/lyrs=m&hl=th&x={{x}}&y={{y}}&z={{z}}';
 
-      // Left Map: zoomControl set to false so NO BUTTON appears in the middle seam!
+      // Left Map: zoomControl is FALSE so NO buttons appear in the middle seam!
       mapRisk = L.map('map-risk', {{
         center: cmCenter,
         zoom: initialZoom,
@@ -658,7 +755,7 @@ html_content = f"""<!DOCTYPE html>
       }});
       L.tileLayer(googleMapsUrl, {{ maxZoom: 18, attribution: '© Google Maps' }}).addTo(mapRisk);
 
-      // Right Map: zoom control placed at far bottomright of screen
+      // Right Map: zoom control placed at TOP RIGHT of screen, far away from any text or dock!
       mapBudget = L.map('map-budget', {{
         center: cmCenter,
         zoom: initialZoom,
@@ -666,7 +763,7 @@ html_content = f"""<!DOCTYPE html>
         boxZoom: false
       }});
       L.tileLayer(googleMapsUrl, {{ maxZoom: 18, attribution: '© Google Maps' }}).addTo(mapBudget);
-      L.control.zoom({{ position: 'bottomright' }}).addTo(mapBudget);
+      L.control.zoom({{ position: 'topright' }}).addTo(mapBudget);
 
       // Synchronize Left -> Right
       mapRisk.on('move', () => {{
@@ -1211,6 +1308,10 @@ html_content = f"""<!DOCTYPE html>
         mapBudget.fitBounds(bounds, {{ padding: [35, 35], animate: true }});
         isSyncing = false;
 
+        // Show floating back bar
+        document.getElementById('floatingBackBar').style.display = 'block';
+        document.getElementById('floatingBackText').textContent = 'ย้อนกลับภาพรวม จ.เชียงใหม่';
+
         showDistrictDetails(targetLayer.feature.properties);
       }} else {{
         resetToOverview();
@@ -1323,6 +1424,10 @@ html_content = f"""<!DOCTYPE html>
           isSyncing = false;
         }}
 
+        // Show floating back bar
+        document.getElementById('floatingBackBar').style.display = 'block';
+        document.getElementById('floatingBackText').textContent = 'ย้อนกลับภาพรวม จ.เชียงใหม่';
+
         showSubdistrictDetails(tamName, selectedDistrict);
       }} else {{
         const vils = VILLAGES_DATA.features.filter(f => f.properties.subdistrict === tamName && (selectedDistrict === 'all' || f.properties.district === selectedDistrict));
@@ -1334,6 +1439,7 @@ html_content = f"""<!DOCTYPE html>
           mapBudget.fitBounds(bounds.pad(0.15), {{ padding: [35, 35], animate: true }});
           isSyncing = false;
         }}
+        document.getElementById('floatingBackBar').style.display = 'block';
         showSubdistrictDetails(tamName, selectedDistrict);
       }}
 
@@ -1426,6 +1532,7 @@ html_content = f"""<!DOCTYPE html>
             fillOpacity: 0.45
           }}).addTo(mapRisk);
 
+          document.getElementById('floatingBackBar').style.display = 'block';
           showVillageDetails(p);
         }});
 
@@ -1464,6 +1571,9 @@ html_content = f"""<!DOCTYPE html>
       selectedPillar = 'all';
       selectedRiskLevel = 'all';
       selectedScoreRange = 'all';
+
+      // Hide floating back bar
+      document.getElementById('floatingBackBar').style.display = 'none';
 
       updateSubdistrictDropdown('all');
       updateVillageDropdown('all', 'all');
@@ -1528,7 +1638,13 @@ html_content = f"""<!DOCTYPE html>
       const totalMed = stats ? stats.totalMed : 0;
       const totalLow = stats ? stats.totalLow : 0;
 
-      document.getElementById('dockAreaTitle').innerHTML = `🏛️ อ.${{ampName}}`;
+      document.getElementById('dockAreaTitle').innerHTML = `
+        <div class="dock-breadcrumbs">
+          <span class="bc-link" onclick="resetToOverview()" title="กลับภาพรวมทั้งจังหวัดเชียงใหม่">📍 เชียงใหม่</span>
+          <span class="bc-sep">❯</span>
+          <span class="bc-curr">🏛️ อ.${{ampName}}</span>
+        </div>
+      `;
       document.getElementById('dockPillScore').innerHTML = `⭐ เฉลี่ย ${{avgScore}}/15`;
       document.getElementById('dockPillRisk').innerHTML = `🔴 สูง ${{totalHigh}} | 🟡 กลาง ${{totalMed}} | 🟢 น้อย ${{totalLow}}`;
       document.getElementById('dockPillBudget').innerHTML = `💰 ${{budget}} ลบ. (${{p.total_projects || 0}} โครงการ)`;
@@ -1630,7 +1746,15 @@ html_content = f"""<!DOCTYPE html>
       const totalMed = stats ? stats.totalMed : 0;
       const totalLow = stats ? stats.totalLow : 0;
 
-      document.getElementById('dockAreaTitle').innerHTML = `🏘️ ต.${{tamName}} (อ.${{distName}})`;
+      document.getElementById('dockAreaTitle').innerHTML = `
+        <div class="dock-breadcrumbs">
+          <span class="bc-link" onclick="resetToOverview()" title="กลับภาพรวมทั้งจังหวัดเชียงใหม่">📍 เชียงใหม่</span>
+          <span class="bc-sep">❯</span>
+          <span class="bc-link" onclick="selectDistrictOnBothMaps('${{distName}}')" title="กลับระดับอำเภอ${{distName}}">🏛️ อ.${{distName}}</span>
+          <span class="bc-sep">❯</span>
+          <span class="bc-curr">🏘️ ต.${{tamName}}</span>
+        </div>
+      `;
       document.getElementById('dockPillScore').innerHTML = `⭐ เฉลี่ย ${{avgScore}}/15`;
       document.getElementById('dockPillRisk').innerHTML = `🔴 สูง ${{totalHigh}} | 🟡 กลาง ${{totalMed}} | 🟢 น้อย ${{totalLow}}`;
       document.getElementById('dockPillBudget').innerHTML = `🏡 ${{vils.length}} หมู่บ้าน`;
@@ -1706,10 +1830,20 @@ html_content = f"""<!DOCTYPE html>
 
     function showVillageDetails(p) {{
       const dock = document.getElementById('smartDock');
-      document.getElementById('dockAreaTitle').innerHTML = `🏡 ม.${{p.village}} (ต.${{p.subdistrict}} อ.${{p.district}})`;
-      document.getElementById('dockPillScore').innerHTML = `🎯 คะแนนรวม: ${{p.total_score}} / 15`;
+      document.getElementById('dockAreaTitle').innerHTML = `
+        <div class="dock-breadcrumbs">
+          <span class="bc-link" onclick="resetToOverview()" title="กลับภาพรวมทั้งจังหวัดเชียงใหม่">📍 เชียงใหม่</span>
+          <span class="bc-sep">❯</span>
+          <span class="bc-link" onclick="selectDistrictOnBothMaps('${{p.district}}')" title="กลับระดับอำเภอ${{p.district}}">🏛️ อ.${{p.district}}</span>
+          <span class="bc-sep">❯</span>
+          <span class="bc-link" onclick="highlightAndZoomSubdistrict('${{p.subdistrict}}')" title="กลับระดับตำบล${{p.subdistrict}}">🏘️ ต.${{p.subdistrict}}</span>
+          <span class="bc-sep">❯</span>
+          <span class="bc-curr">🏡 ม.${{p.village}}</span>
+        </div>
+      `;
+      document.getElementById('dockPillScore').innerHTML = `🎯 รวม ${{p.total_score}} / 15 คะแนน`;
       document.getElementById('dockPillRisk').innerHTML = `${{p.priority}}`;
-      document.getElementById('dockPillBudget').innerHTML = `🏛️ อ.${{p.district}}`;
+      document.getElementById('dockPillBudget').innerHTML = `📍 อ.${{p.district}}`;
 
       const getPillarCard = (name, score, text) => {{
         let barColor = '#34a853';
@@ -1784,4 +1918,4 @@ with open('ChiangMai_Water_GIS_Dashboard.html', 'w', encoding='utf-8') as f:
 with open('index.html', 'w', encoding='utf-8') as f:
     f.write(html_content)
 
-print("Flawless Drilldown GIS regenerated with full scores and clean zoom buttons successfully!")
+print("Flawless Drilldown GIS updated with Floating Back Bar, Clickable Breadcrumbs, and Top-Right Zoom Controls!")
