@@ -56,19 +56,19 @@
       display: flex; align-items: center; justify-content: center;
       color: #fff; font-size: 22px;
     }
-    .brand-title { font-size: 1.1rem; font-weight: 700; color: #1a73e8; line-height: 1.2; }
+    .brand-title { font-size: 1.05rem; font-weight: 700; color: #1a73e8; line-height: 1.2; }
     .brand-sub { font-size: 0.76rem; color: var(--text-sub); }
 
-    .header-kpis { display: flex; align-items: center; gap: 12px; }
+    .header-kpis { display: flex; align-items: center; gap: 10px; }
     .kpi-chip {
       background: #f8f9fa;
       border: 1px solid var(--border);
-      padding: 6px 14px;
+      padding: 5px 12px;
       border-radius: 20px;
-      font-size: 0.8rem;
+      font-size: 0.78rem;
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 5px;
     }
     .kpi-chip strong { color: #1a73e8; font-weight: 700; }
 
@@ -89,7 +89,7 @@
     
     .search-input-wrap {
       position: relative;
-      width: 220px;
+      width: 210px;
     }
     .search-input-wrap input {
       width: 100%;
@@ -126,7 +126,7 @@
       cursor: pointer;
       font-weight: 500;
       color: var(--text-main);
-      max-width: 190px;
+      max-width: 180px;
       transition: border-color 0.2s;
     }
     .filter-select:focus {
@@ -135,7 +135,7 @@
 
     .layer-toggle-btn {
       height: 36px;
-      padding: 0 14px;
+      padding: 0 12px;
       border: 1px solid var(--border);
       border-radius: 18px;
       font-size: 0.82rem;
@@ -143,13 +143,14 @@
       cursor: pointer;
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 5px;
       font-weight: 600;
       color: var(--text-sub);
       transition: all 0.2s;
     }
     .layer-toggle-btn:hover {
       background: #e8eaed;
+      color: var(--text-main);
     }
     .layer-toggle-btn.active {
       background: #e8f0fe;
@@ -189,7 +190,7 @@
       display: flex;
       align-items: center;
       gap: 8px;
-      font-size: 0.86rem;
+      font-size: 0.84rem;
       font-weight: 700;
       pointer-events: none;
     }
@@ -226,7 +227,7 @@
       box-shadow: var(--shadow-lg);
       border: 1px solid var(--border);
       width: 92%;
-      max-width: 820px;
+      max-width: 860px;
       display: none;
       flex-direction: column;
       overflow: hidden;
@@ -238,14 +239,14 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 12px;
+      gap: 10px;
       cursor: pointer;
       user-select: none;
     }
     .dock-title-group {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 8px;
       flex-wrap: wrap;
       flex: 1;
     }
@@ -258,14 +259,21 @@
       background: #f1f3f4;
       padding: 3px 10px;
       border-radius: 12px;
-      font-size: 0.78rem;
+      font-size: 0.76rem;
       font-weight: 600;
       color: var(--text-main);
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
     }
+    .pill-score { background: #fef7e0; color: #b06000; border: 1px solid #f9ab00; }
+    .pill-risk { background: #fce8e6; color: #c5221f; border: 1px solid #ea4335; }
+    .pill-budget { background: #e8f0fe; color: #1967d2; border: 1px solid #aecbfa; }
+
     .dock-actions {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
     }
     .btn-toggle-expand {
       background: #e8f0fe;
@@ -300,7 +308,7 @@
       border-top: 1px solid #f1f3f4;
     }
     .smart-dock.expanded .dock-expanded-content {
-      max-height: 380px;
+      max-height: 420px;
       overflow-y: auto;
     }
     .dock-inner-padding {
@@ -349,10 +357,49 @@
       box-shadow: 0 1px 3px rgba(0,0,0,0.12);
     }
 
-    /* Pulse animation for active selected village */
-    @keyframes pulse-ring {
-      0% { transform: scale(0.6); opacity: 1; }
-      100% { transform: scale(2.4); opacity: 0; }
+    /* Table styles for comprehensive 5-pillar scores */
+    .score-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.78rem;
+      margin-top: 8px;
+      background: #fff;
+      border-radius: 8px;
+      overflow: hidden;
+      border: 1px solid #e8eaed;
+    }
+    .score-table th {
+      background: #f1f3f4;
+      padding: 6px 10px;
+      text-align: center;
+      font-weight: 600;
+      color: #3c4043;
+      border-bottom: 1px solid #dadce0;
+    }
+    .score-table td {
+      padding: 6px 10px;
+      text-align: center;
+      border-bottom: 1px solid #f1f3f4;
+    }
+    .score-table tr:hover td {
+      background: #f8fafd;
+    }
+    .score-bar-wrap {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .score-bar-bg {
+      flex: 1;
+      height: 8px;
+      background: #e8eaed;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    .score-bar-fill {
+      height: 100%;
+      border-radius: 4px;
+      transition: width 0.3s;
     }
   </style>
 </head>
@@ -372,16 +419,20 @@
 
     <div class="header-kpis">
       <div class="kpi-chip">
-        <span class="material-symbols-outlined" style="color:#1a73e8; font-size:18px;">payments</span>
+        <span class="material-symbols-outlined" style="color:#1a73e8; font-size:17px;">payments</span>
         งบประมาณรวม: <strong>35,094.77 ลบ.</strong>
       </div>
       <div class="kpi-chip">
-        <span class="material-symbols-outlined" style="color:#1a73e8; font-size:18px;">construction</span>
+        <span class="material-symbols-outlined" style="color:#1a73e8; font-size:17px;">construction</span>
         โครงการ: <strong>6,312 โครงการ</strong>
       </div>
       <div class="kpi-chip">
-        <span class="material-symbols-outlined" style="color:#d93025; font-size:18px;">warning</span>
-        จุดเสี่ยง: <strong>2,200 หมู่บ้าน</strong>
+        <span class="material-symbols-outlined" style="color:#d93025; font-size:17px;">warning</span>
+        จุดเสี่ยงสูง: <strong>1,040 จุด</strong>
+      </div>
+      <div class="kpi-chip">
+        <span class="material-symbols-outlined" style="color:#f9ab00; font-size:17px;">star</span>
+        คะแนนเฉลี่ย: <strong>7.85 / 15</strong>
       </div>
     </div>
   </header>
@@ -393,7 +444,7 @@
       <!-- Search Input -->
       <div class="search-input-wrap">
         <span class="material-symbols-outlined">search</span>
-        <input type="text" id="searchInput" placeholder="พิมพ์ค้นหา อำเภอ / ตำบล / หมู่บ้าน..." oninput="onSearchInput()">
+        <input type="text" id="searchInput" placeholder="ค้นหา อำเภอ / ตำบล / หมู่บ้าน..." oninput="onSearchInput()">
       </div>
 
       <!-- District Selector -->
@@ -423,15 +474,32 @@
 
       <!-- Risk Level Score Selector -->
       <select class="filter-select" id="riskLevelSelect" onchange="onFilterUpdate()">
-        <option value="all">⚡ ทุกระดับความเสี่ยง</option>
+        <option value="all">⚡ ทุกระดับความเสี่ยง (1-3)</option>
         <option value="เสี่ยงสูง">🚨 เสี่ยงสูง (คะแนน 3)</option>
         <option value="เสี่ยงปานกลาง">🟡 เสี่ยงปานกลาง (คะแนน 2)</option>
         <option value="เสี่ยงน้อย">🟢 เสี่ยงน้อย (คะแนน 1)</option>
       </select>
+
+      <!-- Total Score Filter -->
+      <select class="filter-select" id="totalScoreSelect" onchange="onFilterUpdate()">
+        <option value="all">🎯 ทุกช่วงคะแนนรวม (5-15)</option>
+        <option value="12-15">🚨 วิกฤติสูงมาก (12-15 คะแนน)</option>
+        <option value="10-11">🟠 เฝ้าระวังสูง (10-11 คะแนน)</option>
+        <option value="8-9">🟡 เฝ้าระวังปานกลาง (8-9 คะแนน)</option>
+        <option value="5-7">🟢 ความเสี่ยงต่ำ (5-7 คะแนน)</option>
+      </select>
     </div>
 
-    <!-- Toggle Village Points Layer & Reset View -->
+    <!-- Toggle Village Points Layer, Zoom Controls & Reset View -->
     <div class="filter-group">
+      <button class="layer-toggle-btn" onclick="zoomInBoth()" title="ซูมเข้าทั้ง 2 แผนที่">
+        <span class="material-symbols-outlined" style="font-size:18px;">add</span>
+      </button>
+
+      <button class="layer-toggle-btn" onclick="zoomOutBoth()" title="ซูมออกทั้ง 2 แผนที่">
+        <span class="material-symbols-outlined" style="font-size:18px;">remove</span>
+      </button>
+
       <button class="layer-toggle-btn active" id="btn-toggle-villages" onclick="toggleVillagePoints()">
         <span class="material-symbols-outlined" style="font-size:18px;">pin_drop</span>
         <span>หมุด 2,200 หมู่บ้าน</span>
@@ -490,14 +558,15 @@
       <div class="dock-summary-bar" onclick="toggleDockExpand()">
         <div class="dock-title-group">
           <span class="material-symbols-outlined" style="color:#1a73e8; font-size:22px;">info</span>
-          <span class="area-title" id="dockAreaTitle">อ.สันกำแพง</span>
-          <span class="dock-stat-pill" id="dockPillBudget">💰 599.7 ลบ. (213 โครงการ)</span>
-          <span class="dock-stat-pill" id="dockPillRisk">🔴 79 จุดเสี่ยง</span>
+          <span class="area-title" id="dockAreaTitle">อ.ดอยสะเก็ด</span>
+          <span class="dock-stat-pill pill-score" id="dockPillScore">⭐ เฉลี่ย 9.4/15</span>
+          <span class="dock-stat-pill pill-risk" id="dockPillRisk">🔴 สูง 111 | 🟡 กลาง 273 | 🟢 น้อย 176</span>
+          <span class="dock-stat-pill pill-budget" id="dockPillBudget">💰 1,357 ลบ. (310 โครงการ)</span>
         </div>
         <div class="dock-actions" onclick="event.stopPropagation()">
           <button class="btn-toggle-expand" id="btnDockExpand" onclick="toggleDockExpand()">
             <span class="material-symbols-outlined" style="font-size:16px;" id="expandIcon">expand_less</span>
-            <span id="expandText">ดู 5 มิติ</span>
+            <span id="expandText">ดูคะแนน 5 มิติ</span>
           </button>
           <button class="btn-close-dock" onclick="closeDock()">
             <span class="material-symbols-outlined">close</span>
@@ -533,6 +602,7 @@
     let selectedVillageId = 'all';
     let selectedPillar = 'all';
     let selectedRiskLevel = 'all';
+    let selectedScoreRange = 'all';
 
     window.addEventListener('DOMContentLoaded', () => {
       initMaps();
@@ -546,7 +616,7 @@
       const initialZoom = 9;
       const googleMapsUrl = 'https://mt1.google.com/vt/lyrs=m&hl=th&x={x}&y={y}&z={z}';
 
-      // Left Map
+      // Left Map: zoomControl set to false so NO BUTTON appears in the middle seam!
       mapRisk = L.map('map-risk', {
         center: cmCenter,
         zoom: initialZoom,
@@ -554,9 +624,8 @@
         boxZoom: false
       });
       L.tileLayer(googleMapsUrl, { maxZoom: 18, attribution: '© Google Maps' }).addTo(mapRisk);
-      L.control.zoom({ position: 'bottomright' }).addTo(mapRisk);
 
-      // Right Map
+      // Right Map: zoom control placed at far bottomright of screen
       mapBudget = L.map('map-budget', {
         center: cmCenter,
         zoom: initialZoom,
@@ -583,6 +652,63 @@
           isSyncing = false;
         }
       });
+    }
+
+    function zoomInBoth() {
+      mapRisk.zoomIn();
+    }
+
+    function zoomOutBoth() {
+      mapRisk.zoomOut();
+    }
+
+    /* ========================================================= */
+    /* HELPER: CALCULATE COMPREHENSIVE SCORE STATISTICS          */
+    /* ========================================================= */
+    function calculateScoreStats(features) {
+      const count = features.length;
+      if (count === 0) return null;
+
+      const totalScores = features.map(f => f.properties.total_score || 0);
+      const avgTotal = totalScores.reduce((a,b) => a+b, 0) / count;
+
+      const pillarNames = [
+        '💧 ด้าน 1: น้ำอุปโภคบริโภค',
+        '🌾 ด้าน 2: น้ำภาคเกษตร',
+        '🌊 ด้าน 3: น้ำท่วมและอุทกภัย',
+        '🧪 ด้าน 4: คุณภาพน้ำและการอนุรักษ์',
+        '🌲 ด้าน 5: ฟื้นฟูป่าต้นน้ำ'
+      ];
+
+      const pillars = [];
+      for (let p = 1; p <= 5; p++) {
+        const scores = features.map(f => f.properties[`p${p}_score`] || 1);
+        const avgP = scores.reduce((a,b) => a+b, 0) / count;
+        const highC = scores.filter(s => s === 3).length;
+        const medC = scores.filter(s => s === 2).length;
+        const lowC = scores.filter(s => s === 1).length;
+        pillars.push({
+          index: p,
+          name: pillarNames[p-1],
+          avg: avgP,
+          high: highC,
+          med: medC,
+          low: lowC
+        });
+      }
+
+      const totalHigh = pillars.reduce((a,b) => a + b.high, 0);
+      const totalMed = pillars.reduce((a,b) => a + b.med, 0);
+      const totalLow = pillars.reduce((a,b) => a + b.low, 0);
+
+      return {
+        count,
+        avgTotal,
+        pillars,
+        totalHigh,
+        totalMed,
+        totalLow
+      };
     }
 
     /* ========================================================= */
@@ -613,7 +739,6 @@
       
       if (distName === 'all') {
         subSelect.innerHTML = '<option value="all">🏘️ ทุกตำบล (204 ตำบล)</option>';
-        // Collect all distinct (district, subdistrict) pairs
         const pairs = [];
         const seen = new Set();
         VILLAGES_DATA.features.forEach(f => {
@@ -654,13 +779,12 @@
 
       if (distName === 'all' && (subName === 'all' || !subName)) {
         vilSelect.innerHTML = '<option value="all">🏡 ทุกหมู่บ้าน (2,200 หมู่บ้าน)</option>';
-        // Sort all villages by village name
         const allVils = [...VILLAGES_DATA.features].sort((a,b) => a.properties.village.localeCompare(b.properties.village, 'th'));
         allVils.forEach(f => {
           const p = f.properties;
           const opt = document.createElement('option');
           opt.value = p.id;
-          opt.textContent = `ม.${p.village} (ต.${p.subdistrict} อ.${p.district})`;
+          opt.textContent = `ม.${p.village} (ต.${p.subdistrict} อ.${p.district}) [${p.total_score}/15]`;
           vilSelect.appendChild(opt);
         });
       } else {
@@ -677,7 +801,7 @@
           const p = f.properties;
           const opt = document.createElement('option');
           opt.value = p.id;
-          opt.textContent = (subName && subName !== 'all') ? `ม.${p.village}` : `ม.${p.village} (ต.${p.subdistrict})`;
+          opt.textContent = (subName && subName !== 'all') ? `ม.${p.village} [${p.total_score}/15]` : `ม.${p.village} (ต.${p.subdistrict}) [${p.total_score}/15]`;
           vilSelect.appendChild(opt);
         });
       }
@@ -714,7 +838,6 @@
         return;
       }
 
-      // Check if value is compound "District|Subdistrict"
       if (rawVal.includes('|')) {
         const parts = rawVal.split('|');
         selectedDistrict = parts[0];
@@ -723,7 +846,6 @@
         document.getElementById('districtSelect').value = selectedDistrict;
         selectDistrictOnBothMaps(selectedDistrict, false);
 
-        // Repopulate subdistrict dropdown for this district and select it
         updateSubdistrictDropdown(selectedDistrict);
         document.getElementById('subdistrictSelect').value = selectedSubdistrict;
       } else {
@@ -742,13 +864,11 @@
         return;
       }
 
-      // Find village feature by unique id
       const vFeat = VILLAGES_DATA.features.find(f => f.properties.id == selectedVillageId);
       if (vFeat) {
         const p = vFeat.properties;
         const [lng, lat] = vFeat.geometry.coordinates;
 
-        // Auto-sync District & Subdistrict dropdowns if not already aligned
         if (selectedDistrict !== p.district) {
           selectedDistrict = p.district;
           document.getElementById('districtSelect').value = p.district;
@@ -758,16 +878,14 @@
         if (selectedSubdistrict !== p.subdistrict) {
           selectedSubdistrict = p.subdistrict;
           document.getElementById('subdistrictSelect').value = p.subdistrict;
-          highlightAndZoomSubdistrict(p.subdistrict, false); // highlight polygon without overriding village zoom
+          highlightAndZoomSubdistrict(p.subdistrict, false);
         }
 
-        // Center on village
         isSyncing = true;
         mapRisk.setView([lat, lng], 15);
         mapBudget.setView([lat, lng], 15);
         isSyncing = false;
 
-        // Add pulsing ring marker
         if (activePulseMarker) mapRisk.removeLayer(activePulseMarker);
         activePulseMarker = L.circleMarker([lat, lng], {
           radius: 14,
@@ -801,6 +919,7 @@
 
     function onFilterUpdate() {
       selectedRiskLevel = document.getElementById('riskLevelSelect').value;
+      selectedScoreRange = document.getElementById('totalScoreSelect').value;
       renderVillageDots();
     }
 
@@ -1079,7 +1198,6 @@
       });
 
       if (subFeats.length > 0) {
-        // Organic subdistrict lines on left map
         subdistrictGroupRisk = L.geoJSON(subFeats, {
           style: {
             color: '#1a73e8',
@@ -1101,7 +1219,6 @@
           }
         }).addTo(mapRisk);
 
-        // Organic subdistrict lines on right map
         subdistrictGroupBudget = L.geoJSON(subFeats, {
           style: {
             color: '#0d47a1',
@@ -1140,7 +1257,6 @@
         return;
       }
 
-      // Find the specific subdistrict feature
       const subFeat = SUBDISTRICTS_DATA.features.find(f => {
         const matchT = (f.properties.tam_th === tamName || f.properties.tam_en === tamName);
         const matchA = (selectedDistrict === 'all' || (f.properties.amp_th || '').includes(selectedDistrict));
@@ -1148,7 +1264,6 @@
       });
 
       if (subFeat) {
-        // Highlight this specific subdistrict organic polygon on both maps
         subdistrictHighlightRisk = L.geoJSON(subFeat, {
           style: {
             color: '#d93025',
@@ -1177,7 +1292,6 @@
 
         showSubdistrictDetails(tamName, selectedDistrict);
       } else {
-        // Fallback zoom from village points if feature boundary missing
         const vils = VILLAGES_DATA.features.filter(f => f.properties.subdistrict === tamName && (selectedDistrict === 'all' || f.properties.district === selectedDistrict));
         if (vils.length > 0 && doZoom) {
           const coords = vils.map(f => [f.geometry.coordinates[1], f.geometry.coordinates[0]]);
@@ -1208,11 +1322,21 @@
         if (selectedSubdistrict !== 'all' && p.subdistrict !== selectedSubdistrict) return false;
         if (selectedVillageId !== 'all' && p.id != selectedVillageId) return false;
 
+        // Risk Level Filter
         if (selectedPillar !== 'all' && selectedRiskLevel !== 'all') {
           const pText = p[`${selectedPillar}_text`];
           if (pText !== selectedRiskLevel) return false;
         } else if (selectedRiskLevel !== 'all') {
           if (!p.priority.includes(selectedRiskLevel) && p.p3_text !== selectedRiskLevel) return false;
+        }
+
+        // Total Score Range Filter
+        if (selectedScoreRange !== 'all') {
+          const sc = p.total_score || 0;
+          if (selectedScoreRange === '12-15' && sc < 12) return false;
+          if (selectedScoreRange === '10-11' && (sc < 10 || sc > 11)) return false;
+          if (selectedScoreRange === '8-9' && (sc < 8 || sc > 9)) return false;
+          if (selectedScoreRange === '5-7' && sc > 7) return false;
         }
 
         if (query) {
@@ -1244,7 +1368,6 @@
         marker.on('click', (e) => {
           L.DomEvent.stopPropagation(e);
 
-          // Synchronize dropdowns on village click
           if (selectedDistrict !== p.district) {
             selectedDistrict = p.district;
             document.getElementById('districtSelect').value = p.district;
@@ -1260,7 +1383,6 @@
           selectedVillageId = p.id;
           document.getElementById('villageSelect').value = p.id;
 
-          // Pulse marker
           if (activePulseMarker) mapRisk.removeLayer(activePulseMarker);
           activePulseMarker = L.circleMarker([lat, lng], {
             radius: 14,
@@ -1274,7 +1396,7 @@
           showVillageDetails(p);
         });
 
-        marker.bindTooltip(`<b>${p.village}</b> (ต.${p.subdistrict} อ.${p.district})`, {
+        marker.bindTooltip(`<b>${p.village}</b> (ต.${p.subdistrict} อ.${p.district})<br>คะแนนรวม: <b>${p.total_score} / 15</b> (${p.priority.split(' ')[0]})`, {
           direction: 'top',
           offset: [0, -5]
         });
@@ -1302,13 +1424,14 @@
       document.getElementById('districtSelect').value = 'all';
       document.getElementById('pillarSelect').value = 'all';
       document.getElementById('riskLevelSelect').value = 'all';
+      document.getElementById('totalScoreSelect').value = 'all';
       selectedDistrict = 'all';
       selectedSubdistrict = 'all';
       selectedVillageId = 'all';
       selectedPillar = 'all';
       selectedRiskLevel = 'all';
+      selectedScoreRange = 'all';
 
-      // Repopulate subdistricts & villages to initial global state
       updateSubdistrictDropdown('all');
       updateVillageDropdown('all', 'all');
 
@@ -1342,14 +1465,14 @@
     }
 
     /* ========================================================= */
-    /* SMART DOCK DETAILS HANDLERS                               */
+    /* SMART DOCK DETAILS HANDLERS (COMPREHENSIVE SCORE DATA)    */
     /* ========================================================= */
     function toggleDockExpand() {
       const dock = document.getElementById('smartDock');
       dock.classList.toggle('expanded');
       const isExp = dock.classList.contains('expanded');
       document.getElementById('expandIcon').textContent = isExp ? 'expand_more' : 'expand_less';
-      document.getElementById('expandText').textContent = isExp ? 'ย่อเก็บ' : 'ดู 5 มิติ';
+      document.getElementById('expandText').textContent = isExp ? 'ย่อเก็บ' : 'ดูคะแนน 5 มิติ';
     }
 
     function closeDock() {
@@ -1363,60 +1486,103 @@
       const budget = (p.total_budget || 0).toLocaleString('th-TH', { minimumFractionDigits: 1 });
       const highRisk = p.high_risk_total || 0;
 
+      // Calculate complete score statistics for this district
+      const distVils = VILLAGES_DATA.features.filter(f => f.properties.district === ampName);
+      const stats = calculateScoreStats(distVils);
+
+      const avgScore = stats ? stats.avgTotal.toFixed(2) : '0.00';
+      const totalHigh = stats ? stats.totalHigh : highRisk;
+      const totalMed = stats ? stats.totalMed : 0;
+      const totalLow = stats ? stats.totalLow : 0;
+
       document.getElementById('dockAreaTitle').innerHTML = `🏛️ อ.${ampName}`;
+      document.getElementById('dockPillScore').innerHTML = `⭐ เฉลี่ย ${avgScore}/15`;
+      document.getElementById('dockPillRisk').innerHTML = `🔴 สูง ${totalHigh} | 🟡 กลาง ${totalMed} | 🟢 น้อย ${totalLow}`;
       document.getElementById('dockPillBudget').innerHTML = `💰 ${budget} ลบ. (${p.total_projects || 0} โครงการ)`;
-      document.getElementById('dockPillRisk').innerHTML = `🔴 ${highRisk} จุดเสี่ยง (${p.villages || 0} หมู่บ้าน)`;
+
+      const budgets = [
+        { b: p.budget_p1 || 0, prj: p.proj_p1 || 0 },
+        { b: p.budget_p2 || 0, prj: p.proj_p2 || 0 },
+        { b: p.budget_p3 || 0, prj: p.proj_p3 || 0 },
+        { b: p.budget_p4 || 0, prj: p.proj_p4 || 0 },
+        { b: p.budget_p5 || 0, prj: p.proj_p5 || 0 }
+      ];
+
+      const pillarRows = stats ? stats.pillars.map((pil, idx) => {
+        const bInfo = budgets[idx];
+        const barPct = Math.round((pil.avg / 3) * 100);
+        let barColor = '#34a853';
+        if (pil.avg >= 2.2) barColor = '#d93025';
+        else if (pil.avg >= 1.7) barColor = '#fb8c00';
+
+        return `
+          <tr>
+            <td style="text-align:left; font-weight:600; color:#202124;">${pil.name}</td>
+            <td>
+              <div class="score-bar-wrap">
+                <span style="font-weight:700; width:45px; text-align:right;">${pil.avg.toFixed(2)}/3</span>
+                <div class="score-bar-bg">
+                  <div class="score-bar-fill" style="width:${barPct}%; background:${barColor};"></div>
+                </div>
+              </div>
+            </td>
+            <td><span style="color:#d93025; font-weight:700;">${pil.high}</span></td>
+            <td><span style="color:#f9ab00; font-weight:700;">${pil.med}</span></td>
+            <td><span style="color:#1e8e3e; font-weight:700;">${pil.low}</span></td>
+            <td style="color:#1a73e8; font-weight:700;">${bInfo.b.toFixed(1)} ลบ.</td>
+            <td style="color:#5f6368;">${bInfo.prj} โครงการ</td>
+          </tr>
+        `;
+      }).join('') : '';
 
       document.getElementById('dockExpandedBody').innerHTML = `
-        <div style="font-size:0.85rem; margin-bottom:12px;">
-          <span style="color:#5f6368;">สถานะจัดสรรงบประมาณ:</span>
-          <strong style="margin-left:6px; color:#202124;">${p.gap_status || 'ปกติ'}</strong>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; flex-wrap:wrap; gap:8px;">
+          <div>
+            <span style="font-size:0.88rem; font-weight:700; color:#202124;">🏛️ สรุปคะแนนความเสี่ยงและงบประมาณ อ.${ampName}</span>
+            <span style="font-size:0.78rem; color:#5f6368; margin-left:8px;">(จำนวน ${p.villages || distVils.length} หมู่บ้านสำรวจ)</span>
+          </div>
+          <div>
+            <span style="font-size:0.78rem; color:#5f6368;">สถานะจัดสรร:</span>
+            <strong style="font-size:0.82rem; margin-left:4px; color:#1a73e8;">${p.gap_status || '🟢 สมดุลตามเกณฑ์'}</strong>
+          </div>
         </div>
 
         <div style="display:grid; grid-template-columns: repeat(4, 1fr); gap:10px; background:#f8f9fa; padding:10px 14px; border-radius:12px; margin-bottom:12px; text-align:center;">
           <div>
+            <div style="font-size:0.72rem; color:#5f6368;">คะแนนเฉลี่ยรวม</div>
+            <div style="font-size:1.15rem; font-weight:700; color:#b06000;">${avgScore} / 15</div>
+          </div>
+          <div>
+            <div style="font-size:0.72rem; color:#5f6368;">จุดเสี่ยงสูง (คะแนน 3)</div>
+            <div style="font-size:1.15rem; font-weight:700; color:#d93025;">${totalHigh} จุด</div>
+          </div>
+          <div>
+            <div style="font-size:0.72rem; color:#5f6368;">จุดเสี่ยงปานกลาง (คะแนน 2)</div>
+            <div style="font-size:1.15rem; font-weight:700; color:#f9ab00;">${totalMed} จุด</div>
+          </div>
+          <div>
             <div style="font-size:0.72rem; color:#5f6368;">งบประมาณรวม</div>
-            <div style="font-size:1.05rem; font-weight:700; color:#1a73e8;">${budget} ลบ.</div>
-          </div>
-          <div>
-            <div style="font-size:0.72rem; color:#5f6368;">โครงการทั้งหมด</div>
-            <div style="font-size:1.05rem; font-weight:700; color:#202124;">${p.total_projects || 0} โครงการ</div>
-          </div>
-          <div>
-            <div style="font-size:0.72rem; color:#5f6368;">จุดเสี่ยงสูง</div>
-            <div style="font-size:1.05rem; font-weight:700; color:#d93025;">${highRisk} จุด</div>
-          </div>
-          <div>
-            <div style="font-size:0.72rem; color:#5f6368;">หมู่บ้านทั้งหมด</div>
-            <div style="font-size:1.05rem; font-weight:700; color:#202124;">${p.villages || 0} หมู่บ้าน</div>
+            <div style="font-size:1.15rem; font-weight:700; color:#1a73e8;">${budget} ลบ.</div>
           </div>
         </div>
 
-        <div style="border-top:1px solid #e8eaed; padding-top:10px;">
-          <div style="font-weight:700; font-size:0.8rem; margin-bottom:8px; color:#3c4043;">สรุปงบประมาณและจุดเสี่ยง 5 มิติ:</div>
-          <div style="display:grid; grid-template-columns: 1fr 1fr; gap:6px 16px; font-size:0.78rem;">
-            <div style="display:flex; justify-content:space-between;">
-              <span>💧 ด1: อุปโภคบริโภค</span>
-              <strong>${(p.budget_p1 || 0).toFixed(1)} ลบ. (${p.high_p1 || 0} เสี่ยง)</strong>
-            </div>
-            <div style="display:flex; justify-content:space-between;">
-              <span>🌾 ด2: ภาคเกษตร</span>
-              <strong>${(p.budget_p2 || 0).toFixed(1)} ลบ. (${p.high_p2 || 0} เสี่ยง)</strong>
-            </div>
-            <div style="display:flex; justify-content:space-between;">
-              <span>🌊 ด3: น้ำท่วมอุทกภัย</span>
-              <strong>${(p.budget_p3 || 0).toFixed(1)} ลบ. (${p.high_p3 || 0} เสี่ยง)</strong>
-            </div>
-            <div style="display:flex; justify-content:space-between;">
-              <span>🧪 ด4: คุณภาพน้ำ</span>
-              <strong>${(p.budget_p4 || 0).toFixed(1)} ลบ. (${p.high_p4 || 0} เสี่ยง)</strong>
-            </div>
-            <div style="display:flex; justify-content:space-between;">
-              <span>🌲 ด5: ป่าต้นน้ำ</span>
-              <strong>${(p.budget_p5 || 0).toFixed(1)} ลบ. (${p.high_p5 || 0} เสี่ยง)</strong>
-            </div>
-          </div>
-        </div>
+        <div style="font-size:0.8rem; font-weight:700; color:#3c4043; margin-bottom:4px;">📊 ตารางคะแนนและสถิติความเสี่ยงแยกราย 5 ด้าน:</div>
+        <table class="score-table">
+          <thead>
+            <tr>
+              <th style="text-align:left;">มิติแผนแม่บทน้ำ</th>
+              <th>คะแนนเฉลี่ย (เต็ม 3)</th>
+              <th>🚨 เสี่ยงสูง (3)</th>
+              <th>🟡 ปานกลาง (2)</th>
+              <th>🟢 เสี่ยงน้อย (1)</th>
+              <th>💰 งบประมาณ</th>
+              <th>🏗️ โครงการ</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${pillarRows}
+          </tbody>
+        </table>
       `;
       dock.style.display = 'flex';
     }
@@ -1424,22 +1590,77 @@
     function showSubdistrictDetails(tamName, distName) {
       const dock = document.getElementById('smartDock');
       const vils = VILLAGES_DATA.features.filter(f => f.properties.subdistrict === tamName && (distName === 'all' || f.properties.district === distName));
-      const totalV = vils.length;
-      const highV = vils.filter(f => f.properties.priority.includes('วิกฤติ') || f.properties.priority.includes('เฝ้าระวังสูง')).length;
+      const stats = calculateScoreStats(vils);
+
+      const avgScore = stats ? stats.avgTotal.toFixed(2) : '0.00';
+      const totalHigh = stats ? stats.totalHigh : 0;
+      const totalMed = stats ? stats.totalMed : 0;
+      const totalLow = stats ? stats.totalLow : 0;
 
       document.getElementById('dockAreaTitle').innerHTML = `🏘️ ต.${tamName} (อ.${distName})`;
-      document.getElementById('dockPillBudget').innerHTML = `🏡 ${totalV} หมู่บ้าน`;
-      document.getElementById('dockPillRisk').innerHTML = `🔴 ${highV} จุดเสี่ยงสูง`;
+      document.getElementById('dockPillScore').innerHTML = `⭐ เฉลี่ย ${avgScore}/15`;
+      document.getElementById('dockPillRisk').innerHTML = `🔴 สูง ${totalHigh} | 🟡 กลาง ${totalMed} | 🟢 น้อย ${totalLow}`;
+      document.getElementById('dockPillBudget').innerHTML = `🏡 ${vils.length} หมู่บ้าน`;
+
+      const pillarRows = stats ? stats.pillars.map(pil => {
+        const barPct = Math.round((pil.avg / 3) * 100);
+        let barColor = '#34a853';
+        if (pil.avg >= 2.2) barColor = '#d93025';
+        else if (pil.avg >= 1.7) barColor = '#fb8c00';
+
+        return `
+          <tr>
+            <td style="text-align:left; font-weight:600; color:#202124;">${pil.name}</td>
+            <td>
+              <div class="score-bar-wrap">
+                <span style="font-weight:700; width:45px; text-align:right;">${pil.avg.toFixed(2)}/3</span>
+                <div class="score-bar-bg">
+                  <div class="score-bar-fill" style="width:${barPct}%; background:${barColor};"></div>
+                </div>
+              </div>
+            </td>
+            <td><span style="color:#d93025; font-weight:700;">${pil.high}</span></td>
+            <td><span style="color:#f9ab00; font-weight:700;">${pil.med}</span></td>
+            <td><span style="color:#1e8e3e; font-weight:700;">${pil.low}</span></td>
+          </tr>
+        `;
+      }).join('') : '';
 
       document.getElementById('dockExpandedBody').innerHTML = `
-        <div style="font-size:0.85rem; margin-bottom:10px;">
-          พื้นที่ตำบล: <strong>ต.${tamName} อ.${distName}</strong> | จำนวนหมู่บ้านสำรวจทั้งหมด: <strong>${totalV} หมู่บ้าน</strong>
+        <div style="font-size:0.86rem; font-weight:700; margin-bottom:8px; color:#202124;">
+          🏘️ สรุปคะแนนตำบล ${tamName} (อำเภอ${distName}) | รวม ${vils.length} หมู่บ้าน
         </div>
-        <div style="font-size:0.8rem; color:#5f6368; margin-bottom:8px;">
-          รายชื่อหมู่บ้านในตำบล (คลิกที่ชื่อเพื่อเปิดดูคะแนน 5 ด้าน):
+
+        <table class="score-table" style="margin-bottom:12px;">
+          <thead>
+            <tr>
+              <th style="text-align:left;">มิติแผนแม่บทน้ำ</th>
+              <th>คะแนนเฉลี่ย (เต็ม 3)</th>
+              <th>🚨 เสี่ยงสูง (3)</th>
+              <th>🟡 ปานกลาง (2)</th>
+              <th>🟢 เสี่ยงน้อย (1)</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${pillarRows}
+          </tbody>
+        </table>
+
+        <div style="font-size:0.8rem; font-weight:700; color:#3c4043; margin-bottom:6px;">
+          รายชื่อหมู่บ้านในตำบล (คลิกที่ชื่อหมู่บ้านเพื่อเปิดดูคะแนน 5 ด้าน):
         </div>
         <div style="display:flex; flex-wrap:wrap; gap:6px; max-height:160px; overflow-y:auto;">
-          ${vils.map(v => `<span onclick="onSubdistrictVillageBadgeClick('${v.properties.id}')" style="background:#e8f0fe; color:#1a73e8; padding:4px 10px; border-radius:10px; font-size:0.76rem; font-weight:600; cursor:pointer;">${v.properties.village} (${v.properties.priority.split(' ')[0]})</span>`).join('')}
+          ${vils.map(v => {
+            const p = v.properties;
+            let badgeBg = '#e6f4ea', badgeColor = '#137333';
+            if (p.total_score >= 12) { badgeBg = '#fce8e6'; badgeColor = '#c5221f'; }
+            else if (p.total_score >= 10) { badgeBg = '#feefe3'; badgeColor = '#b06000'; }
+            else if (p.total_score >= 8) { badgeBg = '#fef7e0'; badgeColor = '#8c5000'; }
+
+            return `<span onclick="onSubdistrictVillageBadgeClick('${p.id}')" style="background:${badgeBg}; color:${badgeColor}; padding:4px 10px; border-radius:12px; font-size:0.76rem; font-weight:600; cursor:pointer; border:1px solid rgba(0,0,0,0.06);">
+              ม.${p.village} (${p.total_score}/15 ⭐)
+            </span>`;
+          }).join('')}
         </div>
       `;
       dock.style.display = 'flex';
@@ -1453,43 +1674,65 @@
     function showVillageDetails(p) {
       const dock = document.getElementById('smartDock');
       document.getElementById('dockAreaTitle').innerHTML = `🏡 ม.${p.village} (ต.${p.subdistrict} อ.${p.district})`;
-      document.getElementById('dockPillBudget').innerHTML = `คะแนนรวม: ${p.total_score} / 15`;
+      document.getElementById('dockPillScore').innerHTML = `🎯 คะแนนรวม: ${p.total_score} / 15`;
       document.getElementById('dockPillRisk').innerHTML = `${p.priority}`;
+      document.getElementById('dockPillBudget').innerHTML = `🏛️ อ.${p.district}`;
 
-      const getBadge = (text, score) => {
-        if (score === 3) return `<span style="background:#fce8e6; color:#d93025; padding:2px 8px; border-radius:10px; font-weight:600; font-size:0.75rem;">เสี่ยงสูง (3)</span>`;
-        if (score === 2) return `<span style="background:#fef7e0; color:#b06000; padding:2px 8px; border-radius:10px; font-weight:600; font-size:0.75rem;">ปานกลาง (2)</span>`;
-        return `<span style="background:#e6f4ea; color:#137333; padding:2px 8px; border-radius:10px; font-weight:600; font-size:0.75rem;">เสี่ยงน้อย (1)</span>`;
+      const getPillarCard = (name, score, text) => {
+        let barColor = '#34a853';
+        let badgeBg = '#e6f4ea';
+        let badgeColor = '#137333';
+        if (score === 3) {
+          barColor = '#d93025';
+          badgeBg = '#fce8e6';
+          badgeColor = '#c5221f';
+        } else if (score === 2) {
+          barColor = '#f9ab00';
+          badgeBg = '#fef7e0';
+          badgeColor = '#b06000';
+        }
+
+        const pct = Math.round((score / 3) * 100);
+
+        return `
+          <div style="background:#fff; border:1px solid #dadce0; border-radius:10px; padding:8px 12px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+              <span style="font-weight:600; font-size:0.8rem; color:#202124;">${name}</span>
+              <span style="background:${badgeBg}; color:${badgeColor}; padding:2px 8px; border-radius:8px; font-size:0.72rem; font-weight:700;">
+                ${score} คะแนน (${text})
+              </span>
+            </div>
+            <div class="score-bar-bg" style="height:6px;">
+              <div class="score-bar-fill" style="width:${pct}%; background:${barColor};"></div>
+            </div>
+          </div>
+        `;
       };
 
       document.getElementById('dockExpandedBody').innerHTML = `
-        <div style="margin-bottom:10px; font-size:0.85rem;">
-          ตำแหน่ง: <strong>หมู่บ้าน${p.village} ตำบล${p.subdistrict} อำเภอ${p.district}</strong>
-        </div>
-        <div style="border-top:1px solid #e8eaed; padding-top:10px;">
-          <div style="font-weight:700; font-size:0.8rem; margin-bottom:8px; color:#3c4043;">คะแนนความเสี่ยง 5 มิติ:</div>
-          <div style="display:grid; grid-template-columns: 1fr 1fr; gap:6px 16px; font-size:0.8rem;">
-            <div style="display:flex; justify-content:space-between; align-items:center;">
-              <span>💧 ด1: น้ำอุปโภคบริโภค</span>
-              ${getBadge(p.p1_text, p.p1_score)}
-            </div>
-            <div style="display:flex; justify-content:space-between; align-items:center;">
-              <span>🌾 ด2: ภาคเกษตร</span>
-              ${getBadge(p.p2_text, p.p2_score)}
-            </div>
-            <div style="display:flex; justify-content:space-between; align-items:center;">
-              <span>🌊 ด3: น้ำท่วมอุทกภัย</span>
-              ${getBadge(p.p3_text, p.p3_score)}
-            </div>
-            <div style="display:flex; justify-content:space-between; align-items:center;">
-              <span>🧪 ด4: คุณภาพน้ำ</span>
-              ${getBadge(p.p4_text, p.p4_score)}
-            </div>
-            <div style="display:flex; justify-content:space-between; align-items:center;">
-              <span>🌲 ด5: ป่าต้นน้ำ</span>
-              ${getBadge(p.p5_text, p.p5_score)}
-            </div>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+          <div>
+            <span style="font-size:0.9rem; font-weight:700; color:#202124;">🏡 ม.${p.village} ตำบล${p.subdistrict} อำเภอ${p.district}</span>
           </div>
+          <div>
+            <span style="background:#fce8e6; color:#c5221f; padding:3px 10px; border-radius:12px; font-size:0.78rem; font-weight:700;">
+              คะแนนรวม ${p.total_score} / 15 คะแนน
+            </span>
+          </div>
+        </div>
+
+        <div style="font-size:0.8rem; font-weight:700; color:#3c4043; margin-bottom:8px;">
+          รายละเอียดคะแนนความเสี่ยงครบทั้ง 5 มิติ (คะแนน 1-3):
+        </div>
+
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px; margin-bottom:10px;">
+          ${getPillarCard('💧 ด้าน 1: น้ำอุปโภคบริโภค', p.p1_score, p.p1_text)}
+          ${getPillarCard('🌾 ด้าน 2: น้ำภาคการผลิต (เกษตร)', p.p2_score, p.p2_text)}
+          ${getPillarCard('🌊 ด้าน 3: น้ำท่วมและอุทกภัย', p.p3_score, p.p3_text)}
+          ${getPillarCard('🧪 ด้าน 4: คุณภาพน้ำและการอนุรักษ์', p.p4_score, p.p4_text)}
+        </div>
+        <div>
+          ${getPillarCard('🌲 ด้าน 5: ฟื้นฟูป่าต้นน้ำดินพังทลาย', p.p5_score, p.p5_text)}
         </div>
       `;
       dock.style.display = 'flex';
