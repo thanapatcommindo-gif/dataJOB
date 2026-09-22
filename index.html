@@ -32,10 +32,9 @@
     body { background: var(--bg); color: var(--text-main); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
 
     /* Remove outline on Leaflet SVG paths */
-    path.leaflet-interactive:focus {
-      outline: none !important;
-    }
+    path.leaflet-interactive:focus { outline: none !important; }
     svg:focus { outline: none !important; }
+    .leaflet-container:focus { outline: none !important; }
 
     /* Top Google Navbar */
     header {
@@ -88,7 +87,7 @@
     
     .search-input-wrap {
       position: relative;
-      width: 250px;
+      width: 240px;
     }
     .search-input-wrap input {
       width: 100%;
@@ -234,17 +233,44 @@
     .panel-close { background: none; border: none; cursor: pointer; color: var(--text-sub); }
     .panel-body { padding: 16px 18px; max-height: 380px; overflow-y: auto; font-size: 0.84rem; }
 
-    .district-pill {
-      background: #ffffff;
+    /* Custom On-Map Direct Labels for Districts */
+    .onmap-label-risk {
+      background: rgba(255, 255, 255, 0.92);
+      border: 1.5px solid #d93025;
+      border-radius: 14px;
+      padding: 3px 8px;
+      font-size: 11px;
+      color: #202124;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.18);
+      white-space: nowrap;
+      text-align: center;
+      pointer-events: none;
+      transform: translate(-50%, -50%);
+    }
+    .onmap-label-risk .dname { font-weight: 700; color: #d93025; font-size: 11px; }
+    .onmap-label-risk .dstat { font-size: 10px; color: #3c4043; font-weight: 600; }
+
+    .onmap-label-budget {
+      background: rgba(255, 255, 255, 0.92);
       border: 1.5px solid #1a73e8;
       border-radius: 14px;
-      padding: 2px 7px;
+      padding: 3px 8px;
       font-size: 11px;
-      font-weight: 600;
-      color: #1a73e8;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.15);
+      color: #202124;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.18);
       white-space: nowrap;
+      text-align: center;
       pointer-events: none;
+      transform: translate(-50%, -50%);
+    }
+    .onmap-label-budget .dname { font-weight: 700; color: #1a73e8; font-size: 11px; }
+    .onmap-label-budget .dstat { font-size: 10px; color: #3c4043; font-weight: 600; }
+
+    .leaflet-tooltip-pane .leaflet-tooltip {
+      background: transparent !important;
+      border: none !important;
+      box-shadow: none !important;
+      padding: 0 !important;
     }
   </style>
 </head>
@@ -317,7 +343,7 @@
       </select>
     </div>
 
-    <!-- Toggle Village Points Layer -->
+    <!-- Toggle Village Points Layer & Reset View -->
     <div class="filter-group">
       <button class="layer-toggle-btn active" id="btn-toggle-villages" onclick="toggleVillagePoints()">
         <span class="material-symbols-outlined" style="font-size:18px;">pin_drop</span>
@@ -334,7 +360,7 @@
   <!-- Dual Maps Container (Side-by-Side Sync) -->
   <div class="dual-map-container">
     
-    <!-- Left Map: Risk Analysis (Choropleth + Village Dots) -->
+    <!-- Left Map: Risk Analysis (Choropleth + Village Dots + Direct Labels) -->
     <div class="map-box">
       <div class="map-header-badge badge-risk">
         <span class="material-symbols-outlined" style="font-size:18px;">warning</span>
@@ -353,7 +379,7 @@
       </div>
     </div>
 
-    <!-- Right Map: Budget Allocation (Choropleth) -->
+    <!-- Right Map: Budget Allocation (Choropleth + Direct Numbers on GIS) -->
     <div class="map-box">
       <div class="map-header-badge badge-budget">
         <span class="material-symbols-outlined" style="font-size:18px;">payments</span>
@@ -394,8 +420,8 @@
 
     let mapRisk, mapBudget;
     let districtLayersRisk = {}, districtLayersBudget = {};
-    let subdistrictLayersRisk = [], subdistrictLayersBudget = [];
-    let villagePointsLayer;
+    let subdistrictGroupRisk = null, subdistrictGroupBudget = null;
+    let villagePointsLayer = null;
     let showVillages = true;
     let isSyncing = false;
     let cmBounds;
@@ -420,7 +446,8 @@
       mapRisk = L.map('map-risk', {
         center: cmCenter,
         zoom: initialZoom,
-        zoomControl: false
+        zoomControl: false,
+        boxZoom: false
       });
       L.tileLayer(googleMapsUrl, { maxZoom: 18, attribution: '© Google Maps' }).addTo(mapRisk);
       L.control.zoom({ position: 'bottomright' }).addTo(mapRisk);
@@ -429,7 +456,8 @@
       mapBudget = L.map('map-budget', {
         center: cmCenter,
         zoom: initialZoom,
-        zoomControl: false
+        zoomControl: false,
+        boxZoom: false
       });
       L.tileLayer(googleMapsUrl, { maxZoom: 18, attribution: '© Google Maps' }).addTo(mapBudget);
       L.control.zoom({ position: 'bottomright' }).addTo(mapBudget);
@@ -506,6 +534,7 @@
       };
       document.getElementById('risk-map-title').textContent = pillarTitles[selectedPillar];
       updatePolygonColors();
+      updateOnMapLabels();
       renderVillageDots();
     }
 
@@ -521,7 +550,6 @@
         return;
       }
 
-      // Check if search matches district
       const matchedDist = DISTRICTS_DATA.features.find(f => (f.properties.amp_th || '').toLowerCase().includes(query));
       if (matchedDist) {
         document.getElementById('districtSelect').value = matchedDist.properties.amp_th;
@@ -566,12 +594,12 @@
       districtLayersRisk = {};
       districtLayersBudget = {};
 
-      // Left Map District Layers
+      // Left Map District Layers (Real Polygons)
       const distGroupRisk = L.geoJSON(DISTRICTS_DATA, {
         style: (feat) => ({
           fillColor: getDistrictRiskColor(feat.properties),
           weight: 1.5,
-          opacity: 0.9,
+          opacity: 0.95,
           color: '#ffffff',
           fillOpacity: 0.65
         }),
@@ -580,7 +608,13 @@
           const name = p.amp_th || p.d_name;
           districtLayersRisk[name] = layer;
 
-          layer.bindTooltip(`<div class="district-pill">${name}</div>`, { permanent: false, direction: 'center' });
+          const highCount = p.high_risk_total || 0;
+          layer.bindTooltip(`
+            <div class="onmap-label-risk">
+              <div class="dname">${name}</div>
+              <div class="dstat">🔴 ${highCount} จุดเสี่ยง</div>
+            </div>
+          `, { permanent: true, direction: 'center', className: 'custom-leaflet-tooltip' });
 
           layer.on('click', (e) => {
             L.DomEvent.stopPropagation(e);
@@ -594,12 +628,12 @@
 
       cmBounds = distGroupRisk.getBounds();
 
-      // Right Map District Layers
+      // Right Map District Layers (Real Polygons + Direct Numbers on GIS)
       L.geoJSON(DISTRICTS_DATA, {
         style: (feat) => ({
           fillColor: getDistrictBudgetColor(feat.properties),
           weight: 1.5,
-          opacity: 0.9,
+          opacity: 0.95,
           color: '#ffffff',
           fillOpacity: 0.68
         }),
@@ -608,7 +642,15 @@
           const name = p.amp_th || p.d_name;
           districtLayersBudget[name] = layer;
 
-          layer.bindTooltip(`<div class="district-pill" style="border-color:#0d47a1; color:#0d47a1;">${name}</div>`, { permanent: false, direction: 'center' });
+          const budgetM = (p.total_budget || 0).toLocaleString('th-TH', { maximumFractionDigits: 1 });
+          const projCount = p.total_projects || 0;
+
+          layer.bindTooltip(`
+            <div class="onmap-label-budget">
+              <div class="dname">${name}</div>
+              <div class="dstat">💰 ${budgetM} ลบ. (${projCount} โครงการ)</div>
+            </div>
+          `, { permanent: true, direction: 'center', className: 'custom-leaflet-tooltip' });
 
           layer.on('click', (e) => {
             L.DomEvent.stopPropagation(e);
@@ -621,6 +663,43 @@
       }).addTo(mapBudget);
 
       renderVillageDots();
+    }
+
+    function updateOnMapLabels() {
+      for (const [name, layer] of Object.entries(districtLayersRisk)) {
+        const p = layer.feature.properties;
+        let count = p.high_risk_total || 0;
+        if (selectedPillar === 'p1') count = p.high_p1 || 0;
+        else if (selectedPillar === 'p2') count = p.high_p2 || 0;
+        else if (selectedPillar === 'p3') count = p.high_p3 || 0;
+        else if (selectedPillar === 'p4') count = p.high_p4 || 0;
+        else if (selectedPillar === 'p5') count = p.high_p5 || 0;
+
+        layer.setTooltipContent(`
+          <div class="onmap-label-risk">
+            <div class="dname">${name}</div>
+            <div class="dstat">🔴 ${count} จุดเสี่ยง</div>
+          </div>
+        `);
+      }
+
+      for (const [name, layer] of Object.entries(districtLayersBudget)) {
+        const p = layer.feature.properties;
+        let b = p.total_budget || 0;
+        let projs = p.total_projects || 0;
+        if (selectedPillar === 'p1') { b = p.budget_p1 || 0; projs = p.proj_p1 || 0; }
+        else if (selectedPillar === 'p2') { b = p.budget_p2 || 0; projs = p.proj_p2 || 0; }
+        else if (selectedPillar === 'p3') { b = p.budget_p3 || 0; projs = p.proj_p3 || 0; }
+        else if (selectedPillar === 'p4') { b = p.budget_p4 || 0; projs = p.proj_p4 || 0; }
+        else if (selectedPillar === 'p5') { b = p.budget_p5 || 0; projs = p.proj_p5 || 0; }
+
+        layer.setTooltipContent(`
+          <div class="onmap-label-budget">
+            <div class="dname">${name}</div>
+            <div class="dstat">💰 ${b.toLocaleString('th-TH', { maximumFractionDigits: 1 })} ลบ. (${projs} โครงการ)</div>
+          </div>
+        `);
+      }
     }
 
     function updatePolygonColors() {
@@ -641,8 +720,8 @@
       const layerR = districtLayersBudget[name];
 
       if (isHover) {
-        if (layerL) layerL.setStyle({ weight: 3, color: '#1a73e8', fillOpacity: 0.85 });
-        if (layerR) layerR.setStyle({ weight: 3, color: '#0d47a1', fillOpacity: 0.88 });
+        if (layerL) layerL.setStyle({ weight: 3.5, color: '#1a73e8', fillOpacity: 0.88 });
+        if (layerR) layerR.setStyle({ weight: 3.5, color: '#0d47a1', fillOpacity: 0.90 });
       } else {
         if (layerL && selectedDistrict !== name) layerL.setStyle({ weight: 1.5, color: '#ffffff', fillOpacity: 0.65 });
         if (layerR && selectedDistrict !== name) layerR.setStyle({ weight: 1.5, color: '#ffffff', fillOpacity: 0.68 });
@@ -653,32 +732,35 @@
       selectedDistrict = name;
       document.getElementById('districtSelect').value = name;
 
-      // Reset all styles
+      // Highlight organic polygon shapes on both sides
       for (const [dName, layer] of Object.entries(districtLayersRisk)) {
         const isTarget = (name === 'all' || dName === name);
         layer.setStyle({
-          weight: (dName === name) ? 3.5 : 1.2,
+          weight: (dName === name) ? 4 : 1.2,
           color: (dName === name) ? '#1a73e8' : '#ffffff',
-          fillOpacity: isTarget ? 0.75 : 0.2
+          fillOpacity: isTarget ? 0.78 : 0.22
         });
       }
 
       for (const [dName, layer] of Object.entries(districtLayersBudget)) {
         const isTarget = (name === 'all' || dName === name);
         layer.setStyle({
-          weight: (dName === name) ? 3.5 : 1.2,
+          weight: (dName === name) ? 4 : 1.2,
           color: (dName === name) ? '#0d47a1' : '#ffffff',
-          fillOpacity: isTarget ? 0.78 : 0.2
+          fillOpacity: isTarget ? 0.82 : 0.22
         });
       }
+
+      // Load subdistrict boundaries inside this district
+      renderSubdistrictsForDistrict(name);
 
       if (name !== 'all' && districtLayersRisk[name]) {
         const targetLayer = districtLayersRisk[name];
         const bounds = targetLayer.getBounds();
         
         isSyncing = true;
-        mapRisk.fitBounds(bounds, { padding: [30, 30], animate: true });
-        mapBudget.fitBounds(bounds, { padding: [30, 30], animate: true });
+        mapRisk.fitBounds(bounds, { padding: [35, 35], animate: true });
+        mapBudget.fitBounds(bounds, { padding: [35, 35], animate: true });
         isSyncing = false;
 
         showDistrictDetails(targetLayer.feature.properties);
@@ -689,12 +771,52 @@
       renderVillageDots();
     }
 
+    function renderSubdistrictsForDistrict(distName) {
+      if (subdistrictGroupRisk) mapRisk.removeLayer(subdistrictGroupRisk);
+      if (subdistrictGroupBudget) mapBudget.removeLayer(subdistrictGroupBudget);
+
+      if (distName === 'all') return;
+
+      const subFeats = SUBDISTRICTS_DATA.features.filter(f => {
+        const a = f.properties.amp_th || '';
+        return a.includes(distName) || distName.includes(a);
+      });
+
+      if (subFeats.length > 0) {
+        // Organic subdistrict lines on left map
+        subdistrictGroupRisk = L.geoJSON(subFeats, {
+          style: {
+            color: '#1a73e8',
+            weight: 1.5,
+            dashArray: '3, 4',
+            fillOpacity: 0.05
+          },
+          onEachFeature: (f, l) => {
+            l.bindTooltip(`ต.${f.properties.tam_th}`, { direction: 'center', permanent: false });
+          }
+        }).addTo(mapRisk);
+
+        // Organic subdistrict lines on right map
+        subdistrictGroupBudget = L.geoJSON(subFeats, {
+          style: {
+            color: '#0d47a1',
+            weight: 1.5,
+            dashArray: '3, 4',
+            fillOpacity: 0.05
+          },
+          onEachFeature: (f, l) => {
+            l.bindTooltip(`ต.${f.properties.tam_th}`, { direction: 'center', permanent: false });
+          }
+        }).addTo(mapBudget);
+      }
+    }
+
     function zoomToSubdistrict(tamName) {
       if (tamName === 'all') {
         if (selectedDistrict !== 'all' && districtLayersRisk[selectedDistrict]) {
           const bounds = districtLayersRisk[selectedDistrict].getBounds();
-          mapRisk.fitBounds(bounds, { padding: [20, 20] });
-          mapBudget.fitBounds(bounds, { padding: [20, 20] });
+          mapRisk.fitBounds(bounds, { padding: [25, 25] });
+          mapBudget.fitBounds(bounds, { padding: [25, 25] });
         }
         return;
       }
@@ -704,8 +826,8 @@
         const group = L.geoJSON(subFeats[0]);
         const bounds = group.getBounds();
         isSyncing = true;
-        mapRisk.fitBounds(bounds, { padding: [30, 30] });
-        mapBudget.fitBounds(bounds, { padding: [30, 30] });
+        mapRisk.fitBounds(bounds, { padding: [35, 35] });
+        mapBudget.fitBounds(bounds, { padding: [35, 35] });
         isSyncing = false;
       }
     }
@@ -721,7 +843,6 @@
         if (selectedDistrict !== 'all' && p.district !== selectedDistrict) return false;
         if (selectedSubdistrict !== 'all' && p.subdistrict !== selectedSubdistrict) return false;
 
-        // Pillar & Risk Level Filter
         if (selectedPillar !== 'all' && selectedRiskLevel !== 'all') {
           const pText = p[`${selectedPillar}_text`];
           if (pText !== selectedRiskLevel) return false;
@@ -729,7 +850,6 @@
           if (!p.priority.includes(selectedRiskLevel) && p.p3_text !== selectedRiskLevel) return false;
         }
 
-        // Search query
         if (query) {
           const full = `${p.village} ${p.subdistrict} ${p.district}`.toLowerCase();
           if (!full.includes(query)) return false;
@@ -742,7 +862,6 @@
         const p = f.properties;
         const [lng, lat] = f.geometry.coordinates;
 
-        // Village Point Color
         let dotColor = '#1e8e3e';
         if (p.priority.includes('วิกฤติ')) dotColor = '#d93025';
         else if (p.priority.includes('เฝ้าระวังสูง')) dotColor = '#e37400';
@@ -796,7 +915,11 @@
       selectedPillar = 'all';
       selectedRiskLevel = 'all';
 
+      if (subdistrictGroupRisk) mapRisk.removeLayer(subdistrictGroupRisk);
+      if (subdistrictGroupBudget) mapBudget.removeLayer(subdistrictGroupBudget);
+
       updatePolygonColors();
+      updateOnMapLabels();
 
       for (const [name, layer] of Object.entries(districtLayersRisk)) {
         layer.setStyle({ weight: 1.5, color: '#ffffff', fillOpacity: 0.65 });
