@@ -25,13 +25,13 @@
       --text-sub: #5f6368;
       --border: #dadce0;
       --shadow: 0 2px 6px rgba(60,64,67, 0.12);
-      --shadow-lg: 0 8px 24px rgba(60,64,67, 0.18);
+      --shadow-lg: 0 8px 24px rgba(60,64,67, 0.22);
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Prompt', 'Google Sans', sans-serif; }
     body { background: var(--bg); color: var(--text-main); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
 
-    /* Remove outline on Leaflet SVG paths */
+    /* Remove focus outlines */
     path.leaflet-interactive:focus { outline: none !important; }
     svg:focus { outline: none !important; }
     .leaflet-container:focus { outline: none !important; }
@@ -80,14 +80,14 @@
       flex-wrap: wrap;
       align-items: center;
       justify-content: space-between;
-      gap: 12px;
+      gap: 10px;
       z-index: 900;
     }
-    .filter-group { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .filter-group { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
     
     .search-input-wrap {
       position: relative;
-      width: 240px;
+      width: 210px;
     }
     .search-input-wrap input {
       width: 100%;
@@ -113,7 +113,7 @@
 
     .filter-select {
       height: 36px;
-      padding: 0 12px;
+      padding: 0 10px;
       border: 1px solid var(--border);
       border-radius: 18px;
       font-size: 0.82rem;
@@ -122,6 +122,7 @@
       cursor: pointer;
       font-weight: 500;
       color: var(--text-main);
+      max-width: 170px;
     }
     .filter-select:focus {
       border-color: var(--primary);
@@ -129,7 +130,7 @@
 
     .layer-toggle-btn {
       height: 36px;
-      padding: 0 14px;
+      padding: 0 12px;
       border: 1px solid var(--border);
       border-radius: 18px;
       font-size: 0.82rem;
@@ -201,41 +202,109 @@
     .legend-row { display: flex; align-items: center; gap: 8px; margin-bottom: 3px; }
     .legend-color { width: 14px; height: 12px; border-radius: 3px; display: inline-block; }
 
-    /* Detail Modal Drawer */
-    .info-panel {
+    /* ========================================================= */
+    /* SMART FLOATING BOTTOM DOCK (Does NOT cover the map!)       */
+    /* ========================================================= */
+    .smart-dock {
       position: absolute;
-      bottom: 20px;
-      right: 14px;
-      z-index: 600;
-      width: 380px;
+      bottom: 16px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 700;
       background: #ffffff;
       border-radius: 16px;
       box-shadow: var(--shadow-lg);
       border: 1px solid var(--border);
+      width: 90%;
+      max-width: 760px;
       display: none;
       flex-direction: column;
       overflow: hidden;
-      animation: slideUp 0.2s ease-out;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
-    @keyframes slideUp {
-      from { transform: translateY(20px); opacity: 0; }
-      to { transform: translateY(0); opacity: 1; }
-    }
-    .panel-header {
-      padding: 12px 18px;
-      background: #f8fafd;
-      border-bottom: 1px solid var(--border);
+
+    /* Compact Top Bar of the Dock */
+    .dock-summary-bar {
+      padding: 10px 18px;
       display: flex;
       align-items: center;
       justify-content: space-between;
+      background: #ffffff;
+      cursor: pointer;
+      user-select: none;
+      min-height: 48px;
     }
-    .panel-header h4 { font-size: 0.95rem; font-weight: 700; color: #1a73e8; }
-    .panel-close { background: none; border: none; cursor: pointer; color: var(--text-sub); }
-    .panel-body { padding: 16px 18px; max-height: 380px; overflow-y: auto; font-size: 0.84rem; }
+    .dock-summary-bar:hover {
+      background: #f8fafd;
+    }
+    .dock-title-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 0.88rem;
+    }
+    .dock-title-group .area-title {
+      font-weight: 700;
+      color: #1a73e8;
+      font-size: 0.96rem;
+    }
+    .dock-stat-pill {
+      background: #f1f3f4;
+      padding: 3px 10px;
+      border-radius: 12px;
+      font-size: 0.78rem;
+      color: #3c4043;
+      font-weight: 600;
+    }
+
+    .dock-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .btn-toggle-expand {
+      background: #e8f0fe;
+      color: #1a73e8;
+      border: none;
+      padding: 4px 12px;
+      border-radius: 14px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      cursor: pointer;
+    }
+    .btn-toggle-expand:hover { background: #d2e3fc; }
+    .btn-close-dock {
+      background: none;
+      border: none;
+      color: var(--text-sub);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+    }
+
+    /* Expandable Body of the Dock */
+    .dock-expanded-content {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.35s ease-out;
+      background: #fdfdfd;
+      border-top: 1px solid transparent;
+    }
+    .smart-dock.expanded .dock-expanded-content {
+      max-height: 380px;
+      border-top: 1px solid #e8eaed;
+      overflow-y: auto;
+    }
+    .dock-inner-padding {
+      padding: 16px 20px;
+    }
 
     /* Custom On-Map Direct Labels for Districts */
     .onmap-label-risk {
-      background: rgba(255, 255, 255, 0.92);
+      background: rgba(255, 255, 255, 0.94);
       border: 1.5px solid #d93025;
       border-radius: 14px;
       padding: 3px 8px;
@@ -251,7 +320,7 @@
     .onmap-label-risk .dstat { font-size: 10px; color: #3c4043; font-weight: 600; }
 
     .onmap-label-budget {
-      background: rgba(255, 255, 255, 0.92);
+      background: rgba(255, 255, 255, 0.94);
       border: 1.5px solid #1a73e8;
       border-radius: 14px;
       padding: 3px 8px;
@@ -271,6 +340,20 @@
       border: none !important;
       box-shadow: none !important;
       padding: 0 !important;
+    }
+
+    /* Pulsing beacon animation for selected village point */
+    @keyframes pulseRing {
+      0% { transform: scale(0.6); opacity: 1; }
+      100% { transform: scale(2.6); opacity: 0; }
+    }
+    .village-pulse-icon {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: rgba(26, 115, 232, 0.4);
+      animation: pulseRing 1.5s infinite ease-out;
+      pointer-events: none;
     }
   </style>
 </head>
@@ -304,7 +387,7 @@
     </div>
   </header>
 
-  <!-- Filter & Control Bar (Clean Top Bar) -->
+  <!-- Filter & Control Bar (3-Tier Drill-Down: อำเภอ > ตำบล > หมู่บ้าน) -->
   <div class="filter-bar">
     <div class="filter-group">
       
@@ -321,7 +404,12 @@
 
       <!-- Subdistrict Selector -->
       <select class="filter-select" id="subdistrictSelect" onchange="onSubdistrictChange()">
-        <option value="all">🏘️ ทุกตำบล (194 ตำบล)</option>
+        <option value="all">🏘️ ทุกตำบล</option>
+      </select>
+
+      <!-- Village Selector -->
+      <select class="filter-select" id="villageSelect" onchange="onVillageChange()">
+        <option value="all">🏡 ทุกหมู่บ้าน</option>
       </select>
 
       <!-- 5 Pillars Selector -->
@@ -347,7 +435,7 @@
     <div class="filter-group">
       <button class="layer-toggle-btn active" id="btn-toggle-villages" onclick="toggleVillagePoints()">
         <span class="material-symbols-outlined" style="font-size:18px;">pin_drop</span>
-        <span>แสดงจุดพิกัด 2,200 หมู่บ้าน</span>
+        <span>หมุด 2,200 หมู่บ้าน</span>
       </button>
 
       <button class="layer-toggle-btn" onclick="resetToOverview()" title="จัดกึ่งกลางเชียงใหม่">
@@ -398,15 +486,28 @@
       </div>
     </div>
 
-    <!-- Detail Drawer Panel -->
-    <div class="info-panel" id="infoPanel">
-      <div class="panel-header">
-        <h4 id="panelTitle">ข้อมูลพื้นที่</h4>
-        <button class="panel-close" onclick="closePanel()">
-          <span class="material-symbols-outlined">close</span>
-        </button>
+    <!-- SMART FLOATING BOTTOM DOCK (Does NOT cover the map!) -->
+    <div class="smart-dock" id="smartDock">
+      <div class="dock-summary-bar" onclick="toggleDockExpand()">
+        <div class="dock-title-group">
+          <span class="material-symbols-outlined" style="color:#1a73e8; font-size:22px;">info</span>
+          <span class="area-title" id="dockAreaTitle">อ.สันกำแพง</span>
+          <span class="dock-stat-pill" id="dockPillBudget">💰 599.7 ลบ. (213 โครงการ)</span>
+          <span class="dock-stat-pill" id="dockPillRisk">🔴 79 จุดเสี่ยง</span>
+        </div>
+        <div class="dock-actions" onclick="event.stopPropagation()">
+          <button class="btn-toggle-expand" id="btnDockExpand" onclick="toggleDockExpand()">
+            <span class="material-symbols-outlined" style="font-size:16px;" id="expandIcon">expand_less</span>
+            <span id="expandText">ดู 5 มิติ</span>
+          </button>
+          <button class="btn-close-dock" onclick="closeDock()">
+            <span class="material-symbols-outlined">close</span>
+          </button>
+        </div>
       </div>
-      <div class="panel-body" id="panelBody"></div>
+      <div class="dock-expanded-content">
+        <div class="dock-inner-padding" id="dockExpandedBody"></div>
+      </div>
     </div>
 
   </div>
@@ -422,11 +523,13 @@
     let districtLayersRisk = {}, districtLayersBudget = {};
     let subdistrictGroupRisk = null, subdistrictGroupBudget = null;
     let villagePointsLayer = null;
+    let activePulseMarker = null;
     let showVillages = true;
     let isSyncing = false;
     let cmBounds;
     let selectedDistrict = 'all';
     let selectedSubdistrict = 'all';
+    let selectedVillage = 'all';
     let selectedPillar = 'all';
     let selectedRiskLevel = 'all';
 
@@ -496,9 +599,12 @@
     function onDistrictChange() {
       selectedDistrict = document.getElementById('districtSelect').value;
       const subSelect = document.getElementById('subdistrictSelect');
+      const vilSelect = document.getElementById('villageSelect');
       subSelect.innerHTML = '<option value="all">🏘️ ทุกตำบล</option>';
+      vilSelect.innerHTML = '<option value="all">🏡 ทุกหมู่บ้าน</option>';
 
       if (selectedDistrict !== 'all') {
+        // Populate subdistricts of this district
         const subdistricts = [...new Set(
           VILLAGES_DATA.features
             .filter(f => f.properties.district === selectedDistrict)
@@ -511,15 +617,87 @@
           opt.textContent = `ต.${s}`;
           subSelect.appendChild(opt);
         });
+
+        // Populate villages of this district
+        const villages = [...new Set(
+          VILLAGES_DATA.features
+            .filter(f => f.properties.district === selectedDistrict)
+            .map(f => f.properties.village)
+        )].sort((a,b) => a.localeCompare(b, 'th'));
+
+        villages.forEach(v => {
+          const opt = document.createElement('option');
+          opt.value = v;
+          opt.textContent = `ม.${v}`;
+          vilSelect.appendChild(opt);
+        });
       }
       selectedSubdistrict = 'all';
+      selectedVillage = 'all';
       selectDistrictOnBothMaps(selectedDistrict);
     }
 
     function onSubdistrictChange() {
       selectedSubdistrict = document.getElementById('subdistrictSelect').value;
+      const vilSelect = document.getElementById('villageSelect');
+      vilSelect.innerHTML = '<option value="all">🏡 ทุกหมู่บ้าน</option>';
+
+      if (selectedSubdistrict !== 'all') {
+        const villages = [...new Set(
+          VILLAGES_DATA.features
+            .filter(f => (selectedDistrict === 'all' || f.properties.district === selectedDistrict) && f.properties.subdistrict === selectedSubdistrict)
+            .map(f => f.properties.village)
+        )].sort((a,b) => a.localeCompare(b, 'th'));
+
+        villages.forEach(v => {
+          const opt = document.createElement('option');
+          opt.value = v;
+          opt.textContent = `ม.${v}`;
+          vilSelect.appendChild(opt);
+        });
+      }
+
+      selectedVillage = 'all';
       renderVillageDots();
-      zoomToSubdistrict(selectedSubdistrict);
+      highlightAndZoomSubdistrict(selectedSubdistrict);
+    }
+
+    function onVillageChange() {
+      selectedVillage = document.getElementById('villageSelect').value;
+      if (selectedVillage === 'all') {
+        if (activePulseMarker) { mapRisk.removeLayer(activePulseMarker); activePulseMarker = null; }
+        renderVillageDots();
+        return;
+      }
+
+      // Find village feature
+      const vFeat = VILLAGES_DATA.features.find(f => {
+        const p = f.properties;
+        const matchD = (selectedDistrict === 'all' || p.district === selectedDistrict);
+        const matchS = (selectedSubdistrict === 'all' || p.subdistrict === selectedSubdistrict);
+        return matchD && matchS && p.village === selectedVillage;
+      });
+
+      if (vFeat) {
+        const [lng, lat] = vFeat.geometry.coordinates;
+        isSyncing = true;
+        mapRisk.setView([lat, lng], 14);
+        mapBudget.setView([lat, lng], 14);
+        isSyncing = false;
+
+        // Add pulsing beacon to village
+        if (activePulseMarker) mapRisk.removeLayer(activePulseMarker);
+        activePulseMarker = L.circleMarker([lat, lng], {
+          radius: 12,
+          fillColor: '#1a73e8',
+          color: '#1a73e8',
+          weight: 3,
+          opacity: 0.8,
+          fillOpacity: 0.35
+        }).addTo(mapRisk);
+
+        showVillageDetails(vFeat.properties);
+      }
     }
 
     function onPillarChange() {
@@ -550,6 +728,7 @@
         return;
       }
 
+      // Check if search matches district
       const matchedDist = DISTRICTS_DATA.features.find(f => (f.properties.amp_th || '').toLowerCase().includes(query));
       if (matchedDist) {
         document.getElementById('districtSelect').value = matchedDist.properties.amp_th;
@@ -732,26 +911,29 @@
       selectedDistrict = name;
       document.getElementById('districtSelect').value = name;
 
+      // Reset village beacon
+      if (activePulseMarker) { mapRisk.removeLayer(activePulseMarker); activePulseMarker = null; }
+
       // Highlight organic polygon shapes on both sides
       for (const [dName, layer] of Object.entries(districtLayersRisk)) {
         const isTarget = (name === 'all' || dName === name);
         layer.setStyle({
-          weight: (dName === name) ? 4 : 1.2,
+          weight: (dName === name) ? 3.5 : 1.2,
           color: (dName === name) ? '#1a73e8' : '#ffffff',
-          fillOpacity: isTarget ? 0.78 : 0.22
+          fillOpacity: isTarget ? 0.72 : 0.20
         });
       }
 
       for (const [dName, layer] of Object.entries(districtLayersBudget)) {
         const isTarget = (name === 'all' || dName === name);
         layer.setStyle({
-          weight: (dName === name) ? 4 : 1.2,
+          weight: (dName === name) ? 3.5 : 1.2,
           color: (dName === name) ? '#0d47a1' : '#ffffff',
-          fillOpacity: isTarget ? 0.82 : 0.22
+          fillOpacity: isTarget ? 0.75 : 0.20
         });
       }
 
-      // Load subdistrict boundaries inside this district
+      // Load organic subdistrict boundaries inside this district
       renderSubdistrictsForDistrict(name);
 
       if (name !== 'all' && districtLayersRisk[name]) {
@@ -787,12 +969,19 @@
         subdistrictGroupRisk = L.geoJSON(subFeats, {
           style: {
             color: '#1a73e8',
-            weight: 1.5,
-            dashArray: '3, 4',
-            fillOpacity: 0.05
+            weight: 2,
+            dashArray: '4, 4',
+            fillColor: '#1a73e8',
+            fillOpacity: 0.12
           },
           onEachFeature: (f, l) => {
-            l.bindTooltip(`ต.${f.properties.tam_th}`, { direction: 'center', permanent: false });
+            const tamName = f.properties.tam_th;
+            l.bindTooltip(`ต.${tamName}`, { direction: 'center', permanent: false });
+            l.on('click', (e) => {
+              L.DomEvent.stopPropagation(e);
+              document.getElementById('subdistrictSelect').value = tamName;
+              onSubdistrictChange();
+            });
           }
         }).addTo(mapRisk);
 
@@ -800,35 +989,73 @@
         subdistrictGroupBudget = L.geoJSON(subFeats, {
           style: {
             color: '#0d47a1',
-            weight: 1.5,
-            dashArray: '3, 4',
-            fillOpacity: 0.05
+            weight: 2,
+            dashArray: '4, 4',
+            fillColor: '#0d47a1',
+            fillOpacity: 0.12
           },
           onEachFeature: (f, l) => {
-            l.bindTooltip(`ต.${f.properties.tam_th}`, { direction: 'center', permanent: false });
+            const tamName = f.properties.tam_th;
+            l.bindTooltip(`ต.${tamName}`, { direction: 'center', permanent: false });
+            l.on('click', (e) => {
+              L.DomEvent.stopPropagation(e);
+              document.getElementById('subdistrictSelect').value = tamName;
+              onSubdistrictChange();
+            });
           }
         }).addTo(mapBudget);
       }
     }
 
-    function zoomToSubdistrict(tamName) {
+    function highlightAndZoomSubdistrict(tamName) {
       if (tamName === 'all') {
         if (selectedDistrict !== 'all' && districtLayersRisk[selectedDistrict]) {
           const bounds = districtLayersRisk[selectedDistrict].getBounds();
           mapRisk.fitBounds(bounds, { padding: [25, 25] });
           mapBudget.fitBounds(bounds, { padding: [25, 25] });
         }
+        renderSubdistrictsForDistrict(selectedDistrict);
         return;
       }
 
-      const subFeats = SUBDISTRICTS_DATA.features.filter(f => (f.properties.tam_th === tamName || f.properties.tam_en === tamName));
-      if (subFeats.length > 0) {
-        const group = L.geoJSON(subFeats[0]);
-        const bounds = group.getBounds();
+      // Find the specific subdistrict feature
+      const subFeat = SUBDISTRICTS_DATA.features.find(f => {
+        const matchT = (f.properties.tam_th === tamName || f.properties.tam_en === tamName);
+        const matchA = (selectedDistrict === 'all' || (f.properties.amp_th || '').includes(selectedDistrict));
+        return matchT && matchA;
+      });
+
+      if (subFeat) {
+        if (subdistrictGroupRisk) mapRisk.removeLayer(subdistrictGroupRisk);
+        if (subdistrictGroupBudget) mapBudget.removeLayer(subdistrictGroupBudget);
+
+        // Highlight this specific subdistrict organic polygon on both maps
+        subdistrictGroupRisk = L.geoJSON(subFeat, {
+          style: {
+            color: '#d93025',
+            weight: 3.5,
+            fillColor: '#d93025',
+            fillOpacity: 0.35
+          }
+        }).addTo(mapRisk);
+
+        subdistrictGroupBudget = L.geoJSON(subFeat, {
+          style: {
+            color: '#0d47a1',
+            weight: 3.5,
+            fillColor: '#0d47a1',
+            fillOpacity: 0.35
+          }
+        }).addTo(mapBudget);
+
+        const bounds = subdistrictGroupRisk.getBounds();
         isSyncing = true;
-        mapRisk.fitBounds(bounds, { padding: [35, 35] });
-        mapBudget.fitBounds(bounds, { padding: [35, 35] });
+        mapRisk.fitBounds(bounds, { padding: [35, 35], animate: true });
+        mapBudget.fitBounds(bounds, { padding: [35, 35], animate: true });
         isSyncing = false;
+
+        // Show subdistrict details in smart dock
+        showSubdistrictDetails(tamName, selectedDistrict);
       }
     }
 
@@ -842,6 +1069,7 @@
         const p = f.properties;
         if (selectedDistrict !== 'all' && p.district !== selectedDistrict) return false;
         if (selectedSubdistrict !== 'all' && p.subdistrict !== selectedSubdistrict) return false;
+        if (selectedVillage !== 'all' && p.village !== selectedVillage) return false;
 
         if (selectedPillar !== 'all' && selectedRiskLevel !== 'all') {
           const pText = p[`${selectedPillar}_text`];
@@ -868,10 +1096,10 @@
         else if (p.priority.includes('เฝ้าระวังปานกลาง')) dotColor = '#f9ab00';
 
         const marker = L.circleMarker([lat, lng], {
-          radius: 5,
+          radius: 5.5,
           fillColor: dotColor,
           color: '#ffffff',
-          weight: 1.2,
+          weight: 1.4,
           opacity: 1,
           fillOpacity: 0.95
         });
@@ -907,16 +1135,19 @@
     function resetToOverview() {
       document.getElementById('searchInput').value = '';
       document.getElementById('districtSelect').value = 'all';
-      document.getElementById('subdistrictSelect').innerHTML = '<option value="all">🏘️ ทุกตำบล (194 ตำบล)</option>';
+      document.getElementById('subdistrictSelect').innerHTML = '<option value="all">🏘️ ทุกตำบล</option>';
+      document.getElementById('villageSelect').innerHTML = '<option value="all">🏡 ทุกหมู่บ้าน</option>';
       document.getElementById('pillarSelect').value = 'all';
       document.getElementById('riskLevelSelect').value = 'all';
       selectedDistrict = 'all';
       selectedSubdistrict = 'all';
+      selectedVillage = 'all';
       selectedPillar = 'all';
       selectedRiskLevel = 'all';
 
       if (subdistrictGroupRisk) mapRisk.removeLayer(subdistrictGroupRisk);
       if (subdistrictGroupBudget) mapBudget.removeLayer(subdistrictGroupBudget);
+      if (activePulseMarker) { mapRisk.removeLayer(activePulseMarker); activePulseMarker = null; }
 
       updatePolygonColors();
       updateOnMapLabels();
@@ -938,72 +1169,118 @@
       } else {
         mapRisk.setView([18.7883, 98.9853], 9);
       }
-      closePanel();
+      closeDock();
+    }
+
+    /* ========================================================= */
+    /* SMART DOCK DETAILS HANDLERS                               */
+    /* ========================================================= */
+    function toggleDockExpand() {
+      const dock = document.getElementById('smartDock');
+      dock.classList.toggle('expanded');
+      const isExp = dock.classList.contains('expanded');
+      document.getElementById('expandIcon').textContent = isExp ? 'expand_more' : 'expand_less';
+      document.getElementById('expandText').textContent = isExp ? 'ย่อเก็บ' : 'ดู 5 มิติ';
+    }
+
+    function closeDock() {
+      document.getElementById('smartDock').style.display = 'none';
+      document.getElementById('smartDock').classList.remove('expanded');
     }
 
     function showDistrictDetails(p) {
-      const panel = document.getElementById('infoPanel');
+      const dock = document.getElementById('smartDock');
       const ampName = p.amp_th || p.d_name || 'อำเภอ';
-      document.getElementById('panelTitle').innerHTML = `🏛️ อำเภอ${ampName}`;
-
-      const budget = (p.total_budget || 0).toLocaleString('th-TH', { minimumFractionDigits: 1 });
+      const budget = (p.total_budget || 0).toLocaleString('th-TH', { maximumFractionDigits: 1 });
       const highRisk = p.high_risk_total || 0;
 
-      document.getElementById('panelBody').innerHTML = `
-        <div style="font-size:0.9rem; margin-bottom:14px;">
-          <div style="color:#5f6368;">สถานะจัดสรรงบประมาณ:</div>
-          <div style="font-weight:700; margin-top:2px;">${p.gap_status || 'ปกติ'}</div>
+      document.getElementById('dockAreaTitle').innerHTML = `🏛️ อ.${ampName}`;
+      document.getElementById('dockPillBudget').innerHTML = `💰 ${budget} ลบ. (${p.total_projects || 0} โครงการ)`;
+      document.getElementById('dockPillRisk').innerHTML = `🔴 ${highRisk} จุดเสี่ยง (${p.villages || 0} หมู่บ้าน)`;
+
+      document.getElementById('dockExpandedBody').innerHTML = `
+        <div style="font-size:0.85rem; margin-bottom:12px;">
+          <span style="color:#5f6368;">สถานะจัดสรรงบประมาณ:</span>
+          <strong style="margin-left:6px; color:#202124;">${p.gap_status || 'ปกติ'}</strong>
         </div>
 
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; background:#f8f9fa; padding:12px; border-radius:12px; margin-bottom:14px;">
+        <div style="display:grid; grid-template-columns: repeat(4, 1fr); gap:10px; background:#f8f9fa; padding:10px 14px; border-radius:12px; margin-bottom:12px; text-align:center;">
           <div>
-            <div style="font-size:0.75rem; color:#5f6368;">งบประมาณรวม</div>
-            <div style="font-size:1.1rem; font-weight:700; color:#1a73e8;">${budget} ลบ.</div>
+            <div style="font-size:0.72rem; color:#5f6368;">งบประมาณรวม</div>
+            <div style="font-size:1.05rem; font-weight:700; color:#1a73e8;">${budget} ลบ.</div>
           </div>
           <div>
-            <div style="font-size:0.75rem; color:#5f6368;">โครงการทั้งหมด</div>
-            <div style="font-size:1.1rem; font-weight:700; color:#202124;">${p.total_projects || 0} โครงการ</div>
+            <div style="font-size:0.72rem; color:#5f6368;">โครงการทั้งหมด</div>
+            <div style="font-size:1.05rem; font-weight:700; color:#202124;">${p.total_projects || 0} โครงการ</div>
           </div>
           <div>
-            <div style="font-size:0.75rem; color:#5f6368;">จุดเสี่ยงสูง</div>
-            <div style="font-size:1.1rem; font-weight:700; color:#d93025;">${highRisk} จุด</div>
+            <div style="font-size:0.72rem; color:#5f6368;">จุดเสี่ยงสูง</div>
+            <div style="font-size:1.05rem; font-weight:700; color:#d93025;">${highRisk} จุด</div>
           </div>
           <div>
-            <div style="font-size:0.75rem; color:#5f6368;">หมู่บ้านทั้งหมด</div>
-            <div style="font-size:1.1rem; font-weight:700; color:#202124;">${p.villages || 0} หมู่บ้าน</div>
+            <div style="font-size:0.72rem; color:#5f6368;">หมู่บ้านทั้งหมด</div>
+            <div style="font-size:1.05rem; font-weight:700; color:#202124;">${p.villages || 0} หมู่บ้าน</div>
           </div>
         </div>
 
         <div style="border-top:1px solid #e8eaed; padding-top:10px;">
-          <div style="font-weight:700; font-size:0.82rem; margin-bottom:8px;">สรุปงบประมาณและจุดเสี่ยง 5 มิติ:</div>
-          <div style="display:flex; justify-content:space-between; font-size:0.78rem; margin-bottom:4px;">
-            <span>💧 ด1: น้ำอุปโภคบริโภค</span>
-            <strong>${(p.budget_p1 || 0).toFixed(1)} ลบ. (${p.high_p1 || 0} เสี่ยงสูง)</strong>
-          </div>
-          <div style="display:flex; justify-content:space-between; font-size:0.78rem; margin-bottom:4px;">
-            <span>🌾 ด2: น้ำภาคการผลิต (เกษตร)</span>
-            <strong>${(p.budget_p2 || 0).toFixed(1)} ลบ. (${p.high_p2 || 0} เสี่ยงสูง)</strong>
-          </div>
-          <div style="display:flex; justify-content:space-between; font-size:0.78rem; margin-bottom:4px;">
-            <span>🌊 ด3: น้ำท่วมและอุทกภัย</span>
-            <strong>${(p.budget_p3 || 0).toFixed(1)} ลบ. (${p.high_p3 || 0} เสี่ยงสูง)</strong>
-          </div>
-          <div style="display:flex; justify-content:space-between; font-size:0.78rem; margin-bottom:4px;">
-            <span>🧪 ด4: คุณภาพน้ำและอนุรักษ์</span>
-            <strong>${(p.budget_p4 || 0).toFixed(1)} ลบ. (${p.high_p4 || 0} เสี่ยงสูง)</strong>
-          </div>
-          <div style="display:flex; justify-content:space-between; font-size:0.78rem;">
-            <span>🌲 ด5: ฟื้นฟูป่าต้นน้ำ</span>
-            <strong>${(p.budget_p5 || 0).toFixed(1)} ลบ. (${p.high_p5 || 0} เสี่ยงสูง)</strong>
+          <div style="font-weight:700; font-size:0.8rem; margin-bottom:8px; color:#3c4043;">สรุปงบประมาณและจุดเสี่ยง 5 มิติ:</div>
+          <div style="display:grid; grid-template-columns: 1fr 1fr; gap:6px 16px; font-size:0.78rem;">
+            <div style="display:flex; justify-content:space-between;">
+              <span>💧 ด1: อุปโภคบริโภค</span>
+              <strong>${(p.budget_p1 || 0).toFixed(1)} ลบ. (${p.high_p1 || 0} เสี่ยง)</strong>
+            </div>
+            <div style="display:flex; justify-content:space-between;">
+              <span>🌾 ด2: ภาคเกษตร</span>
+              <strong>${(p.budget_p2 || 0).toFixed(1)} ลบ. (${p.high_p2 || 0} เสี่ยง)</strong>
+            </div>
+            <div style="display:flex; justify-content:space-between;">
+              <span>🌊 ด3: น้ำท่วมอุทกภัย</span>
+              <strong>${(p.budget_p3 || 0).toFixed(1)} ลบ. (${p.high_p3 || 0} เสี่ยง)</strong>
+            </div>
+            <div style="display:flex; justify-content:space-between;">
+              <span>🧪 ด4: คุณภาพน้ำ</span>
+              <strong>${(p.budget_p4 || 0).toFixed(1)} ลบ. (${p.high_p4 || 0} เสี่ยง)</strong>
+            </div>
+            <div style="display:flex; justify-content:space-between;">
+              <span>🌲 ด5: ป่าต้นน้ำ</span>
+              <strong>${(p.budget_p5 || 0).toFixed(1)} ลบ. (${p.high_p5 || 0} เสี่ยง)</strong>
+            </div>
           </div>
         </div>
       `;
-      panel.style.display = 'flex';
+      dock.style.display = 'flex';
+    }
+
+    function showSubdistrictDetails(tamName, distName) {
+      const dock = document.getElementById('smartDock');
+      const vils = VILLAGES_DATA.features.filter(f => f.properties.subdistrict === tamName && (distName === 'all' || f.properties.district === distName));
+      const totalV = vils.length;
+      const highV = vils.filter(f => f.properties.priority.includes('วิกฤติ') || f.properties.priority.includes('เฝ้าระวังสูง')).length;
+
+      document.getElementById('dockAreaTitle').innerHTML = `🏘️ ต.${tamName} (อ.${distName})`;
+      document.getElementById('dockPillBudget').innerHTML = `🏡 ${totalV} หมู่บ้าน`;
+      document.getElementById('dockPillRisk').innerHTML = `🔴 ${highV} จุดเสี่ยงสูง`;
+
+      document.getElementById('dockExpandedBody').innerHTML = `
+        <div style="font-size:0.85rem; margin-bottom:10px;">
+          พื้นที่ตำบล: <strong>ต.${tamName} อ.${distName}</strong> | จำนวนหมู่บ้านสำรวจทั้งหมด: <strong>${totalV} หมู่บ้าน</strong>
+        </div>
+        <div style="font-size:0.8rem; color:#5f6368; margin-bottom:8px;">
+          รายชื่อหมู่บ้านในตำบล:
+        </div>
+        <div style="display:flex; flex-wrap:wrap; gap:6px; max-height:160px; overflow-y:auto;">
+          ${vils.map(v => `<span style="background:#e8f0fe; color:#1a73e8; padding:3px 8px; border-radius:10px; font-size:0.76rem; font-weight:600;">${v.properties.village} (${v.properties.priority.split(' ')[0]})</span>`).join('')}
+        </div>
+      `;
+      dock.style.display = 'flex';
     }
 
     function showVillageDetails(p) {
-      const panel = document.getElementById('infoPanel');
-      document.getElementById('panelTitle').innerHTML = `📍 ${p.village}`;
+      const dock = document.getElementById('smartDock');
+      document.getElementById('dockAreaTitle').innerHTML = `🏡 ม.${p.village} (ต.${p.subdistrict} อ.${p.district})`;
+      document.getElementById('dockPillBudget').innerHTML = `คะแนนรวม: ${p.total_score} / 15`;
+      document.getElementById('dockPillRisk').innerHTML = `${p.priority}`;
 
       const getBadge = (text, score) => {
         if (score === 3) return `<span style="background:#fce8e6; color:#d93025; padding:2px 8px; border-radius:10px; font-weight:600; font-size:0.75rem;">เสี่ยงสูง (3)</span>`;
@@ -1011,42 +1288,41 @@
         return `<span style="background:#e6f4ea; color:#137333; padding:2px 8px; border-radius:10px; font-weight:600; font-size:0.75rem;">เสี่ยงน้อย (1)</span>`;
       };
 
-      document.getElementById('panelBody').innerHTML = `
-        <div style="margin-bottom:12px; font-size:0.9rem;">
-          <div style="color:#5f6368;">ตำแหน่ง: <strong>ต.${p.subdistrict} อ.${p.district}</strong></div>
-          <div style="margin-top:4px;">ระดับความสำคัญ: <strong>${p.priority}</strong></div>
-          <div style="margin-top:4px;">คะแนนความเสี่ยงรวม: <strong style="color:#1a73e8; font-size:1.1rem;">${p.total_score} / 15</strong></div>
+      document.getElementById('dockExpandedBody').innerHTML = `
+        <div style="margin-bottom:10px; font-size:0.85rem;">
+          ตำแหน่ง: <strong>หมู่บ้าน${p.village} ตำบล${p.subdistrict} อำเภอ${p.district}</strong>
         </div>
-
         <div style="border-top:1px solid #e8eaed; padding-top:10px;">
-          <div style="font-weight:700; font-size:0.82rem; margin-bottom:8px;">คะแนนความเสี่ยง 5 มิติ:</div>
-          <div style="display:flex; justify-content:space-between; font-size:0.8rem; margin-bottom:6px;">
-            <span>💧 ด1: น้ำอุปโภคบริโภค</span>
-            ${getBadge(p.p1_text, p.p1_score)}
-          </div>
-          <div style="display:flex; justify-content:space-between; font-size:0.8rem; margin-bottom:6px;">
-            <span>🌾 ด2: น้ำภาคการผลิต (เกษตร)</span>
-            ${getBadge(p.p2_text, p.p2_score)}
-          </div>
-          <div style="display:flex; justify-content:space-between; font-size:0.8rem; margin-bottom:6px;">
-            <span>🌊 ด3: น้ำท่วมและอุทกภัย</span>
-            ${getBadge(p.p3_text, p.p3_score)}
-          </div>
-          <div style="display:flex; justify-content:space-between; font-size:0.8rem; margin-bottom:6px;">
-            <span>🧪 ด4: คุณภาพน้ำและอนุรักษ์</span>
-            ${getBadge(p.p4_text, p.p4_score)}
-          </div>
-          <div style="display:flex; justify-content:space-between; font-size:0.8rem;">
-            <span>🌲 ด5: ฟื้นฟูป่าต้นน้ำ</span>
-            ${getBadge(p.p5_text, p.p5_score)}
+          <div style="font-weight:700; font-size:0.8rem; margin-bottom:8px; color:#3c4043;">คะแนนความเสี่ยง 5 มิติ:</div>
+          <div style="display:grid; grid-template-columns: 1fr 1fr; gap:6px 16px; font-size:0.8rem;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <span>💧 ด1: น้ำอุปโภคบริโภค</span>
+              ${getBadge(p.p1_text, p.p1_score)}
+            </div>
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <span>🌾 ด2: ภาคเกษตร</span>
+              ${getBadge(p.p2_text, p.p2_score)}
+            </div>
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <span>🌊 ด3: น้ำท่วมอุทกภัย</span>
+              ${getBadge(p.p3_text, p.p3_score)}
+            </div>
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <span>🧪 ด4: คุณภาพน้ำ</span>
+              ${getBadge(p.p4_text, p.p4_score)}
+            </div>
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <span>🌲 ด5: ป่าต้นน้ำ</span>
+              ${getBadge(p.p5_text, p.p5_score)}
+            </div>
           </div>
         </div>
       `;
-      panel.style.display = 'flex';
-    }
-
-    function closePanel() {
-      document.getElementById('infoPanel').style.display = 'none';
+      dock.style.display = 'flex';
+      // Auto expand on village click to show scores immediately
+      dock.classList.add('expanded');
+      document.getElementById('expandIcon').textContent = 'expand_more';
+      document.getElementById('expandText').textContent = 'ย่อเก็บ';
     }
   </script>
 </body>
