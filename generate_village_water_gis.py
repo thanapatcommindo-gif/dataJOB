@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Generate Advanced Google Maps Styled Web GIS Dashboard for Chiang Mai Water Master Plan
-Down to 2,200 Village Points + Multi-pillar Score Filters + Dual Sync Map
+Generate Advanced, High-UX Google Maps Styled Web GIS Dashboard for Chiang Mai Water Master Plan
+Down to 2,200 Village Points + Multi-pillar Score Filters + Dual Sync Map + Auto Fit Bounds
 """
 
 import json
@@ -11,6 +11,9 @@ import os
 with open('chiangmai_districts_gis.geojson', 'r', encoding='utf-8') as f:
     districts_geojson = json.load(f)
 
+with open('chiangmai_subdistricts_gis.geojson', 'r', encoding='utf-8') as f:
+    subdistricts_geojson = json.load(f)
+
 with open('chiangmai_villages_gis.geojson', 'r', encoding='utf-8') as f:
     villages_geojson = json.load(f)
 
@@ -18,6 +21,7 @@ with open('dashboard_data.json', 'r', encoding='utf-8') as f:
     dash_data = json.load(f)
 
 districts_json_str = json.dumps(districts_geojson, ensure_ascii=False)
+subdistricts_json_str = json.dumps(subdistricts_geojson, ensure_ascii=False)
 villages_json_str = json.dumps(villages_geojson, ensure_ascii=False)
 dash_data_json_str = json.dumps(dash_data, ensure_ascii=False)
 
@@ -45,7 +49,7 @@ html_content = f"""<!DOCTYPE html>
       --primary-dark: #1557b0;
       --primary-light: #e8f0fe;
       --danger: #d93025;
-      --warning: #f29900;
+      --warning: #e37400;
       --yellow: #f9ab00;
       --success: #1e8e3e;
       --bg: #f8fafd;
@@ -83,7 +87,7 @@ html_content = f"""<!DOCTYPE html>
     .brand-title {{ font-size: 1.05rem; font-weight: 700; color: #1a73e8; line-height: 1.2; }}
     .brand-sub {{ font-size: 0.72rem; color: var(--text-sub); }}
 
-    .header-kpis {{ display: flex; align-items: center; gap: 18px; }}
+    .header-kpis {{ display: flex; align-items: center; gap: 14px; }}
     .kpi-chip {{
       background: #f1f3f4;
       padding: 6px 14px;
@@ -105,7 +109,7 @@ html_content = f"""<!DOCTYPE html>
 
     /* Sidebar Filters & Analytics */
     .sidebar {{
-      width: 400px;
+      width: 390px;
       background: #ffffff;
       border-right: 1px solid var(--border);
       display: flex;
@@ -116,21 +120,21 @@ html_content = f"""<!DOCTYPE html>
       overflow-y: auto;
     }}
     .sidebar.collapsed {{
-      margin-left: -400px;
+      margin-left: -390px;
     }}
 
     .sidebar-section {{
-      padding: 16px 20px;
+      padding: 14px 18px;
       border-bottom: 1px solid #f1f3f4;
     }}
     .section-header {{
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 12px;
+      margin-bottom: 10px;
     }}
     .section-title {{
-      font-size: 0.9rem;
+      font-size: 0.88rem;
       font-weight: 600;
       color: var(--text-main);
       display: flex;
@@ -138,18 +142,39 @@ html_content = f"""<!DOCTYPE html>
       gap: 8px;
     }}
 
+    /* Active Filter Badges */
+    .active-filters-bar {{
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 10px;
+    }}
+    .filter-tag {{
+      background: #e8f0fe;
+      color: #1a73e8;
+      padding: 4px 10px;
+      border-radius: 14px;
+      font-size: 0.74rem;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      cursor: pointer;
+    }}
+    .filter-tag:hover {{ background: #d2e3fc; }}
+
     /* Google Style Floating Search */
     .search-box {{
       position: relative;
-      margin-bottom: 12px;
+      margin-bottom: 10px;
     }}
     .search-box input {{
       width: 100%;
-      height: 42px;
-      padding: 0 16px 0 42px;
+      height: 40px;
+      padding: 0 16px 0 40px;
       border: 1px solid var(--border);
-      border-radius: 24px;
-      font-size: 0.88rem;
+      border-radius: 20px;
+      font-size: 0.85rem;
       outline: none;
       background: #f8fafd;
       transition: all 0.2s;
@@ -161,7 +186,7 @@ html_content = f"""<!DOCTYPE html>
     }}
     .search-box .material-symbols-outlined {{
       position: absolute;
-      left: 14px;
+      left: 12px;
       top: 10px;
       color: var(--text-sub);
       font-size: 20px;
@@ -169,23 +194,23 @@ html_content = f"""<!DOCTYPE html>
 
     /* Filter Form Controls */
     .form-group {{
-      margin-bottom: 12px;
+      margin-bottom: 10px;
     }}
     .form-label {{
       font-size: 0.78rem;
       font-weight: 600;
       color: var(--text-sub);
-      margin-bottom: 5px;
+      margin-bottom: 4px;
       display: flex;
       justify-content: space-between;
     }}
     .form-select {{
       width: 100%;
-      height: 38px;
-      padding: 0 12px;
+      height: 36px;
+      padding: 0 10px;
       border: 1px solid var(--border);
-      border-radius: 10px;
-      font-size: 0.84rem;
+      border-radius: 8px;
+      font-size: 0.82rem;
       background: #ffffff;
       outline: none;
       cursor: pointer;
@@ -198,17 +223,17 @@ html_content = f"""<!DOCTYPE html>
     .pillar-filter-card {{
       background: #f8f9fa;
       border: 1px solid #e8eaed;
-      border-radius: 12px;
-      padding: 10px 12px;
-      margin-bottom: 10px;
+      border-radius: 10px;
+      padding: 8px 10px;
+      margin-bottom: 8px;
     }}
     .pillar-header {{
       display: flex;
       align-items: center;
       justify-content: space-between;
-      font-size: 0.82rem;
+      font-size: 0.8rem;
       font-weight: 600;
-      margin-bottom: 8px;
+      margin-bottom: 6px;
     }}
     .pillar-options {{
       display: grid;
@@ -234,21 +259,20 @@ html_content = f"""<!DOCTYPE html>
     .pill-btn.active.high {{
       background: var(--danger);
       border-color: var(--danger);
+      color: #fff;
     }}
     .pill-btn.active.med {{
-      background: var(--yellow);
-      border-color: var(--yellow);
-      color: #202124;
+      background: var(--warning);
+      border-color: var(--warning);
+      color: #fff;
     }}
     .pill-btn.active.low {{
       background: var(--success);
       border-color: var(--success);
+      color: #fff;
     }}
 
     /* Score Slider */
-    .slider-container {{
-      padding: 4px 0;
-    }}
     .score-range {{
       width: 100%;
       accent-color: var(--primary);
@@ -348,6 +372,21 @@ html_content = f"""<!DOCTYPE html>
       color: var(--text-main);
     }}
 
+    .btn-fit-bounds {{
+      position: absolute;
+      top: 66px;
+      left: 14px;
+      z-index: 800;
+      width: 42px; height: 42px;
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: 50%;
+      box-shadow: var(--shadow);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+      color: var(--text-main);
+    }}
+
     /* Legend Overlay */
     .map-legend {{
       position: absolute;
@@ -403,20 +442,14 @@ html_content = f"""<!DOCTYPE html>
     /* Custom Leaflet Tooltip & Pill Styles */
     .district-pill {{
       background: #ffffff;
-      border: 1px solid #1a73e8;
+      border: 1.5px solid #1a73e8;
       border-radius: 16px;
-      padding: 3px 8px;
+      padding: 2px 8px;
       font-size: 11px;
       font-weight: 600;
       color: #1a73e8;
       box-shadow: 0 1px 4px rgba(0,0,0,0.15);
       white-space: nowrap;
-    }}
-    .leaflet-popup-content-wrapper {{
-      border-radius: 14px;
-      box-shadow: var(--shadow-lg);
-      padding: 4px;
-      font-family: 'Prompt', sans-serif;
     }}
   </style>
 </head>
@@ -458,7 +491,7 @@ html_content = f"""<!DOCTYPE html>
     <!-- Sidebar: Multi-level Filters & Pillar Scoring -->
     <aside class="sidebar" id="sidebar">
       
-      <!-- Instant Search -->
+      <!-- Instant Search & District/Subdistrict Filter -->
       <div class="sidebar-section">
         <div class="section-title">
           <span class="material-symbols-outlined" style="color:var(--primary);">search</span>
@@ -483,6 +516,8 @@ html_content = f"""<!DOCTYPE html>
             </select>
           </div>
         </div>
+
+        <div class="active-filters-bar" id="active-tags-container"></div>
       </div>
 
       <!-- Priority & Total Score Filter -->
@@ -609,6 +644,11 @@ html_content = f"""<!DOCTYPE html>
         <span class="material-symbols-outlined">menu_open</span>
       </button>
 
+      <!-- Center / Fit Bounds Button -->
+      <button class="btn-fit-bounds" onclick="fitChiangMaiBounds()" title="จัดกึ่งกลางแผนที่เชียงใหม่">
+        <span class="material-symbols-outlined">crop_free</span>
+      </button>
+
       <!-- Floating View Controls (Single Map vs Dual Comparison) -->
       <div class="floating-controls">
         <div class="control-card">
@@ -635,7 +675,7 @@ html_content = f"""<!DOCTYPE html>
       <div class="map-legend">
         <div class="legend-title">ระดับความเสี่ยงรายหมู่บ้าน</div>
         <div class="legend-item"><span class="legend-dot" style="background:#d93025;"></span> 🚨 วิกฤติเร่งด่วน (เสี่ยงสูง 2+ ด้าน)</div>
-        <div class="legend-item"><span class="legend-dot" style="background:#ea4335;"></span> ⚠️ เฝ้าระวังสูง (เสี่ยงสูง 1 ด้าน)</div>
+        <div class="legend-item"><span class="legend-dot" style="background:#e37400;"></span> ⚠️ เฝ้าระวังสูง (เสี่ยงสูง 1 ด้าน)</div>
         <div class="legend-item"><span class="legend-dot" style="background:#f9ab00;"></span> 🟡 เฝ้าระวังปานกลาง (เสี่ยงกลาง 3+ ด้าน)</div>
         <div class="legend-item"><span class="legend-dot" style="background:#1e8e3e;"></span> 🟢 เสี่ยงต่ำ/ทั่วไป</div>
       </div>
@@ -660,7 +700,7 @@ html_content = f"""<!DOCTYPE html>
   <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
 
   <script>
-    // Injected GeoJSON Datasets
+    // Injected Datasets
     const DISTRICTS_DATA = {districts_json_str};
     const VILLAGES_DATA = {villages_json_str};
     const SUMMARY_DATA = {dash_data_json_str};
@@ -670,6 +710,7 @@ html_content = f"""<!DOCTYPE html>
     let villageClusterGroup;
     let currentMapMode = 'single';
     let isSyncing = false;
+    let cmBounds;
 
     // Filter States
     let pillarFilters = {{
@@ -683,6 +724,7 @@ html_content = f"""<!DOCTYPE html>
       populateDropdowns();
       renderDistrictPolygons();
       renderVillagePoints(VILLAGES_DATA.features);
+      fitChiangMaiBounds();
     }});
 
     function initMaps() {{
@@ -737,7 +779,7 @@ html_content = f"""<!DOCTYPE html>
       }});
 
       villageClusterGroup = L.markerClusterGroup({{
-        maxClusterRadius: 45,
+        maxClusterRadius: 35,
         spiderfyOnMaxZoom: true,
         showCoverageOnHover: false,
         zoomToBoundsOnClick: true
@@ -780,14 +822,14 @@ html_content = f"""<!DOCTYPE html>
     }}
 
     function renderDistrictPolygons() {{
-      // Risk Map District Polygons
+      // Risk Map District Polygons (Clean outlines)
       districtLayerRisk = L.geoJSON(DISTRICTS_DATA, {{
         style: (feature) => ({{
           fillColor: '#1a73e8',
-          weight: 1.5,
-          opacity: 0.8,
+          weight: 1.8,
+          opacity: 0.85,
           color: '#1a73e8',
-          fillOpacity: 0.08
+          fillOpacity: 0.04
         }}),
         onEachFeature: (feature, layer) => {{
           const p = feature.properties;
@@ -800,6 +842,8 @@ html_content = f"""<!DOCTYPE html>
           layer.on('click', () => showDistrictDetails(p));
         }}
       }}).addTo(mapRisk);
+
+      cmBounds = districtLayerRisk.getBounds();
 
       // Budget Map District Polygons with Chloropleth
       districtLayerBudget = L.geoJSON(DISTRICTS_DATA, {{
@@ -816,7 +860,7 @@ html_content = f"""<!DOCTYPE html>
             weight: 1.5,
             opacity: 0.9,
             color: '#1557b0',
-            fillOpacity: 0.65
+            fillOpacity: 0.6
           }};
         }},
         onEachFeature: (feature, layer) => {{
@@ -837,7 +881,7 @@ html_content = f"""<!DOCTYPE html>
 
     function getVillageColor(props) {{
       if (props.priority.includes('วิกฤติ')) return '#d93025';
-      if (props.priority.includes('เฝ้าระวังสูง')) return '#ea4335';
+      if (props.priority.includes('เฝ้าระวังสูง')) return '#e37400';
       if (props.priority.includes('เฝ้าระวังปานกลาง')) return '#f9ab00';
       return '#1e8e3e';
     }}
@@ -865,6 +909,7 @@ html_content = f"""<!DOCTYPE html>
 
       villageClusterGroup.addLayers(markers);
       document.getElementById('filtered-villages-count').textContent = features.length.toLocaleString('th-TH');
+      updateActiveFilterTags();
     }}
 
     function setPillarFilter(pillar, val, el) {{
@@ -918,10 +963,69 @@ html_content = f"""<!DOCTYPE html>
 
       renderVillagePoints(filtered);
 
-      // Auto zoom if single district selected
-      if (dist !== 'all' && filtered.length > 0) {{
-        const group = L.featureGroup(filtered.map(f => L.marker([f.geometry.coordinates[1], f.geometry.coordinates[0]])));
-        mapRisk.fitBounds(group.getBounds().pad(0.15));
+      // Auto zoom to filtered bounds
+      if (filtered.length > 0) {{
+        if (dist !== 'all' || sub !== 'all' || searchText) {{
+          const group = L.featureGroup(filtered.map(f => L.marker([f.geometry.coordinates[1], f.geometry.coordinates[0]])));
+          mapRisk.fitBounds(group.getBounds().pad(0.12));
+        }}
+      }}
+    }}
+
+    function updateActiveFilterTags() {{
+      const container = document.getElementById('active-tags-container');
+      container.innerHTML = '';
+
+      const dist = document.getElementById('districtSelect').value;
+      const sub = document.getElementById('subdistrictSelect').value;
+      const priority = document.getElementById('prioritySelect').value;
+
+      if (dist !== 'all') {{
+        addTag(`อ.${{dist}}`, () => {{ document.getElementById('districtSelect').value = 'all'; onDistrictChange(); }});
+      }}
+      if (sub !== 'all') {{
+        addTag(`ต.${{sub}}`, () => {{ document.getElementById('subdistrictSelect').value = 'all'; applyAllFilters(); }});
+      }}
+      if (priority !== 'all') {{
+        addTag(priority, () => {{ document.getElementById('prioritySelect').value = 'all'; applyAllFilters(); }});
+      }}
+      if (minScore > 5) {{
+        addTag(`คะแนน ≥ ${{minScore}}`, () => {{
+          minScore = 5;
+          document.getElementById('minScoreRange').value = 5;
+          document.getElementById('minScoreLabel').textContent = '5 คะแนน';
+          applyAllFilters();
+        }});
+      }}
+
+      const pillarNames = {{ p1: 'ด1', p2: 'ด2', p3: 'ด3', p4: 'ด4', p5: 'ด5' }};
+      for (const [k, v] of Object.entries(pillarFilters)) {{
+        if (v !== 'all') {{
+          addTag(`${{pillarNames[k]}}: ${{v}}`, () => {{
+            const card = document.querySelector(`.pillar-options[data-pillar="${{k}}"]`);
+            card.querySelectorAll('.pill-btn').forEach(b => b.classList.remove('active'));
+            card.querySelector('.pill-btn').classList.add('active');
+            pillarFilters[k] = 'all';
+            applyAllFilters();
+          }});
+        }}
+      }}
+    }}
+
+    function addTag(text, onRemove) {{
+      const tag = document.createElement('span');
+      tag.className = 'filter-tag';
+      tag.innerHTML = `${{text}} <span class="material-symbols-outlined" style="font-size:14px;">close</span>`;
+      tag.onclick = onRemove;
+      document.getElementById('active-tags-container').appendChild(tag);
+    }}
+
+    function fitChiangMaiBounds() {{
+      if (cmBounds) {{
+        mapRisk.fitBounds(cmBounds.pad(0.05));
+        if (mapBudget) mapBudget.fitBounds(cmBounds.pad(0.05));
+      }} else {{
+        mapRisk.setView([18.7883, 98.9853], 9);
       }}
     }}
 
@@ -941,7 +1045,7 @@ html_content = f"""<!DOCTYPE html>
       }});
 
       renderVillagePoints(VILLAGES_DATA.features);
-      mapRisk.setView([18.7883, 98.9853], 9);
+      fitChiangMaiBounds();
       closeDrawer();
     }}
 
@@ -1043,7 +1147,7 @@ html_content = f"""<!DOCTYPE html>
         setTimeout(() => {{
           mapRisk.invalidateSize();
           mapBudget.invalidateSize();
-          mapBudget.setView(mapRisk.getCenter(), mapRisk.getZoom(), {{ animate: false }});
+          fitChiangMaiBounds();
         }}, 100);
       }} else {{
         dualBtn.classList.remove('active');
@@ -1052,6 +1156,7 @@ html_content = f"""<!DOCTYPE html>
         divider.style.display = 'none';
         setTimeout(() => {{
           mapRisk.invalidateSize();
+          fitChiangMaiBounds();
         }}, 100);
       }}
     }}
@@ -1067,4 +1172,4 @@ with open('ChiangMai_Water_GIS_Dashboard.html', 'w', encoding='utf-8') as f:
 with open('index.html', 'w', encoding='utf-8') as f:
     f.write(html_content)
 
-print("Advanced Water GIS Dashboard & index.html generated successfully!")
+print("High-UX Water GIS Dashboard & index.html updated successfully!")
