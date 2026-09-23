@@ -2,20 +2,20 @@
 # -*- coding: utf-8 -*-
 """
 Generate Flawless 3-Tier Drill-Down GIS Dashboard for Chiang Mai Water Master Plan
-- 100% Fixed Zoom Controls:
-    * Removed awkward center seam zoom button completely!
-    * Zoom controls relocated to top-right of map + top action bar buttons (+ / -).
-    * Never obstructs text or dock bar!
-- 100% Intuitive Return to Overview:
-    * Prominent floating "⬅️ ย้อนกลับภาพรวม จ.เชียงใหม่" button whenever drilled down.
-    * Interactive clickable Breadcrumbs in dock (📍 เชียงใหม่ ❯ 🏛️ อำเภอ ❯ 🏘️ ตำบล ❯ 🏡 หมู่บ้าน).
-    * "🏠 กลับภาพรวม" button inside the bottom dock.
-    * "รีเซ็ตมุมมอง" button in top filter bar.
-    * Selecting "📍 ทุกอำเภอ" in dropdown resets to full province overview.
-- Comprehensive 5-Pillar Score Analytics (คะแนนเฉลี่ย, เสี่ยงสูง-กลาง-น้อย, คะแนนรวม 5-15).
-- 100% Fixed Dropdowns (Bi-directional sync).
-- Organic boundary polygons (NO bounding boxes, NO rectangles).
-- Both left & right maps synchronized in real-time.
+- 100% Comprehensive QA & Zero-Bug Execution:
+    * Intelligent Natural Search: strips prefixes (อ., ต., ม., อำเภอ, ตำบล, หมู่บ้าน) & real-time pin filtering
+    * Dual-Map Pulsing Beacons on both Risk & Budget maps upon village selection
+    * Smooth single-step zooming (no double-zoom jitter when selecting village or subdistrict)
+    * 5-Way Return to Overview:
+        1. Floating Back Button (⬅️ ย้อนกลับภาพรวม จ.เชียงใหม่)
+        2. Clickable 4-tier Breadcrumbs in bottom dock
+        3. Home Button inside dock summary bar (🔄 กลับภาพรวม)
+        4. Reset View button in top filter bar (🔄 รีเซ็ตมุมมอง)
+        5. District dropdown selection (📍 ทุกอำเภอ)
+    * No controls in the center seam (clean, unobstructed comparison view)
+    * Top-right master zoom controls + top action bar zoom buttons (+ / -)
+    * Leaflet resize invalidation to eliminate any grey tile issues
+    * Comprehensive 5-pillar score matrix (เสี่ยงสูง-กลาง-น้อย, คะแนนเฉลี่ย, คะแนนรวม 5-15)
 """
 
 import json
@@ -242,7 +242,7 @@ html_content = f"""<!DOCTYPE html>
       top: 14px;
       left: 50%;
       transform: translateX(-50%);
-      z-index: 600;
+      z-index: 650;
       display: none;
     }}
     .btn-floating-back {{
@@ -297,7 +297,7 @@ html_content = f"""<!DOCTYPE html>
       box-shadow: 0 6px 24px rgba(0,0,0,0.18);
       border: 1px solid var(--border);
       width: 92%;
-      max-width: 880px;
+      max-width: 920px;
       display: none;
       flex-direction: column;
       overflow: hidden;
@@ -320,7 +320,7 @@ html_content = f"""<!DOCTYPE html>
       gap: 8px;
       flex-wrap: wrap;
       flex: 1;
-      min-width: 260px;
+      min-width: 280px;
     }}
     
     /* Breadcrumbs navigation */
@@ -354,7 +354,7 @@ html_content = f"""<!DOCTYPE html>
 
     .dock-stat-pill {{
       background: #f1f3f4;
-      padding: 3px 10px;
+      padding: 4px 10px;
       border-radius: 12px;
       font-size: 0.76rem;
       font-weight: 600;
@@ -431,6 +431,15 @@ html_content = f"""<!DOCTYPE html>
     }}
     .dock-inner-padding {{
       padding: 14px 18px;
+    }}
+
+    @keyframes pulse-ring {{
+      0% {{ stroke-width: 3.5px; stroke-opacity: 0.95; fill-opacity: 0.55; }}
+      50% {{ stroke-width: 8px; stroke-opacity: 0.35; fill-opacity: 0.2; }}
+      100% {{ stroke-width: 3.5px; stroke-opacity: 0.95; fill-opacity: 0.55; }}
+    }}
+    .pulse-circle-marker {{
+      animation: pulse-ring 1.8s infinite ease-in-out;
     }}
 
     /* Custom On-Map Text Labels */
@@ -722,7 +731,7 @@ html_content = f"""<!DOCTYPE html>
     let subdistrictGroupRisk = null, subdistrictGroupBudget = null;
     let subdistrictHighlightRisk = null, subdistrictHighlightBudget = null;
     let villagePointsLayer = null;
-    let activePulseMarker = null;
+    let activePulseMarker = null, activePulseMarkerBudget = null;
     let showVillages = true;
     let isSyncing = false;
     let cmBounds;
@@ -781,6 +790,12 @@ html_content = f"""<!DOCTYPE html>
           mapRisk.setView(mapBudget.getCenter(), mapBudget.getZoom(), {{ animate: false }});
           isSyncing = false;
         }}
+      }});
+
+      // Handle window resize dynamically to prevent any grey tiles
+      window.addEventListener('resize', () => {{
+        if (mapRisk) mapRisk.invalidateSize();
+        if (mapBudget) mapBudget.invalidateSize();
       }});
     }}
 
@@ -950,7 +965,7 @@ html_content = f"""<!DOCTYPE html>
       updateSubdistrictDropdown(selectedDistrict);
       updateVillageDropdown(selectedDistrict, 'all');
 
-      selectDistrictOnBothMaps(selectedDistrict, false);
+      selectDistrictOnBothMaps(selectedDistrict, false, true);
     }}
 
     function onSubdistrictChange() {{
@@ -961,7 +976,7 @@ html_content = f"""<!DOCTYPE html>
         selectedSubdistrict = 'all';
         if (selectedDistrict !== 'all') {{
           updateVillageDropdown(selectedDistrict, 'all');
-          highlightAndZoomSubdistrict('all');
+          highlightAndZoomSubdistrict('all', true);
         }} else {{
           resetToOverview();
         }}
@@ -974,7 +989,7 @@ html_content = f"""<!DOCTYPE html>
         selectedSubdistrict = parts[1];
 
         document.getElementById('districtSelect').value = selectedDistrict;
-        selectDistrictOnBothMaps(selectedDistrict, false);
+        selectDistrictOnBothMaps(selectedDistrict, false, false);
 
         updateSubdistrictDropdown(selectedDistrict);
         document.getElementById('subdistrictSelect').value = selectedSubdistrict;
@@ -983,14 +998,23 @@ html_content = f"""<!DOCTYPE html>
       }}
 
       updateVillageDropdown(selectedDistrict, selectedSubdistrict);
-      highlightAndZoomSubdistrict(selectedSubdistrict);
+      highlightAndZoomSubdistrict(selectedSubdistrict, true);
     }}
 
     function onVillageChange() {{
       selectedVillageId = document.getElementById('villageSelect').value;
       if (selectedVillageId === 'all') {{
         if (activePulseMarker) {{ mapRisk.removeLayer(activePulseMarker); activePulseMarker = null; }}
+        if (activePulseMarkerBudget) {{ mapBudget.removeLayer(activePulseMarkerBudget); activePulseMarkerBudget = null; }}
         renderVillageDots();
+
+        if (selectedSubdistrict !== 'all') {{
+          highlightAndZoomSubdistrict(selectedSubdistrict, true);
+        }} else if (selectedDistrict !== 'all') {{
+          selectDistrictOnBothMaps(selectedDistrict, false, true);
+        }} else {{
+          resetToOverview();
+        }}
         return;
       }}
 
@@ -1002,7 +1026,7 @@ html_content = f"""<!DOCTYPE html>
         if (selectedDistrict !== p.district) {{
           selectedDistrict = p.district;
           document.getElementById('districtSelect').value = p.district;
-          selectDistrictOnBothMaps(p.district, false);
+          selectDistrictOnBothMaps(p.district, false, false);
           updateSubdistrictDropdown(p.district);
         }}
         if (selectedSubdistrict !== p.subdistrict) {{
@@ -1011,22 +1035,38 @@ html_content = f"""<!DOCTYPE html>
           highlightAndZoomSubdistrict(p.subdistrict, false);
         }}
 
+        // Smoothly pan & zoom both maps together
         isSyncing = true;
         mapRisk.setView([lat, lng], 15);
         mapBudget.setView([lat, lng], 15);
         isSyncing = false;
 
+        // Synchronized pulsing beacons on both maps
         if (activePulseMarker) mapRisk.removeLayer(activePulseMarker);
+        if (activePulseMarkerBudget) mapBudget.removeLayer(activePulseMarkerBudget);
+
         activePulseMarker = L.circleMarker([lat, lng], {{
           radius: 14,
           fillColor: '#1a73e8',
           color: '#1a73e8',
           weight: 3.5,
           opacity: 0.9,
-          fillOpacity: 0.45
+          fillOpacity: 0.45,
+          className: 'pulse-circle-marker'
         }}).addTo(mapRisk);
 
+        activePulseMarkerBudget = L.circleMarker([lat, lng], {{
+          radius: 14,
+          fillColor: '#0d47a1',
+          color: '#0d47a1',
+          weight: 3.5,
+          opacity: 0.9,
+          fillOpacity: 0.45,
+          className: 'pulse-circle-marker'
+        }}).addTo(mapBudget);
+
         renderVillageDots();
+        document.getElementById('floatingBackBar').style.display = 'block';
         showVillageDetails(p);
       }}
     }}
@@ -1053,37 +1093,68 @@ html_content = f"""<!DOCTYPE html>
       renderVillageDots();
     }}
 
+    /* ========================================================= */
+    /* NATURAL PREFIX-CLEANING SEARCH LOGIC                      */
+    /* ========================================================= */
     function onSearchInput() {{
-      const query = document.getElementById('searchInput').value.trim().toLowerCase();
-      if (!query) {{
+      const rawQuery = document.getElementById('searchInput').value.trim();
+      if (!rawQuery) {{
         renderVillageDots();
         return;
       }}
 
-      // Match district
-      const matchedDist = DISTRICTS_DATA.features.find(f => (f.properties.amp_th || '').toLowerCase() === query);
+      const query = rawQuery.toLowerCase();
+      // Strip common prefixes: อำเภอ, ตำบล, หมู่บ้าน, บ้าน, หมู่ที่ [0-9], หมู่ [0-9], ม.[0-9], อ., ต., ม., บ.
+      const cleanQ = query.replace(/^(อำเภอ|ตำบล|หมู่บ้าน|บ้าน|หมู่ที่\s*\d+|หมู่\s*\d+|ม\.\s*\d+|อ\.|ต\.|ม\.|บ\.)\s*/i, '').trim();
+
+      if (!cleanQ) {{
+        renderVillageDots();
+        return;
+      }}
+
+      // 1. Try matching District
+      const matchedDist = DISTRICTS_DATA.features.find(f => {{
+        const d = (f.properties.amp_th || '').toLowerCase();
+        return d === cleanQ || d === query || d.startsWith(cleanQ);
+      }});
       if (matchedDist) {{
         document.getElementById('districtSelect').value = matchedDist.properties.amp_th;
         onDistrictChange();
         return;
       }}
 
-      // Match subdistrict
-      const matchedSub = SUBDISTRICTS_DATA.features.find(f => (f.properties.tam_th || '').toLowerCase() === query);
+      // 2. Try matching Subdistrict
+      const matchedSub = SUBDISTRICTS_DATA.features.find(f => {{
+        const s = (f.properties.tam_th || '').toLowerCase();
+        return s === cleanQ || s === query || s.startsWith(cleanQ);
+      }});
       if (matchedSub) {{
         const amp = matchedSub.properties.amp_th;
         const tam = matchedSub.properties.tam_th;
         selectedDistrict = amp;
         selectedSubdistrict = tam;
         document.getElementById('districtSelect').value = amp;
-        selectDistrictOnBothMaps(amp, false);
+        selectDistrictOnBothMaps(amp, false, false);
         updateSubdistrictDropdown(amp);
         document.getElementById('subdistrictSelect').value = tam;
         updateVillageDropdown(amp, tam);
-        highlightAndZoomSubdistrict(tam);
+        highlightAndZoomSubdistrict(tam, true);
         return;
       }}
 
+      // 3. Try matching single/exact village
+      const matchedVils = VILLAGES_DATA.features.filter(f => {{
+        const v = (f.properties.village || '').toLowerCase();
+        return v === cleanQ || v === query;
+      }});
+      if (matchedVils.length === 1) {{
+        const targetVil = matchedVils[0];
+        document.getElementById('villageSelect').value = targetVil.properties.id;
+        onVillageChange();
+        return;
+      }}
+
+      // 4. Otherwise, filter village dots in real-time
       renderVillageDots();
     }}
 
@@ -1148,7 +1219,7 @@ html_content = f"""<!DOCTYPE html>
 
           layer.on('click', (e) => {{
             L.DomEvent.stopPropagation(e);
-            selectDistrictOnBothMaps(name, true);
+            selectDistrictOnBothMaps(name, true, true);
           }});
 
           layer.on('mouseover', () => highlightDistrictHover(name, true));
@@ -1184,7 +1255,7 @@ html_content = f"""<!DOCTYPE html>
 
           layer.on('click', (e) => {{
             L.DomEvent.stopPropagation(e);
-            selectDistrictOnBothMaps(name, true);
+            selectDistrictOnBothMaps(name, true, true);
           }});
 
           layer.on('mouseover', () => highlightDistrictHover(name, true));
@@ -1261,11 +1332,12 @@ html_content = f"""<!DOCTYPE html>
     /* ========================================================= */
     /* DISTRICT SELECTION & BI-DIRECTIONAL SYNC                  */
     /* ========================================================= */
-    function selectDistrictOnBothMaps(name, updateDropdowns = true) {{
+    function selectDistrictOnBothMaps(name, updateDropdowns = true, doZoom = true) {{
       selectedDistrict = name;
       document.getElementById('districtSelect').value = name;
 
       if (activePulseMarker) {{ mapRisk.removeLayer(activePulseMarker); activePulseMarker = null; }}
+      if (activePulseMarkerBudget) {{ mapBudget.removeLayer(activePulseMarkerBudget); activePulseMarkerBudget = null; }}
       if (subdistrictHighlightRisk) {{ mapRisk.removeLayer(subdistrictHighlightRisk); subdistrictHighlightRisk = null; }}
       if (subdistrictHighlightBudget) {{ mapBudget.removeLayer(subdistrictHighlightBudget); subdistrictHighlightBudget = null; }}
 
@@ -1303,10 +1375,12 @@ html_content = f"""<!DOCTYPE html>
         const targetLayer = districtLayersRisk[name];
         const bounds = targetLayer.getBounds();
         
-        isSyncing = true;
-        mapRisk.fitBounds(bounds, {{ padding: [35, 35], animate: true }});
-        mapBudget.fitBounds(bounds, {{ padding: [35, 35], animate: true }});
-        isSyncing = false;
+        if (doZoom) {{
+          isSyncing = true;
+          mapRisk.fitBounds(bounds, {{ padding: [35, 35], animate: true }});
+          mapBudget.fitBounds(bounds, {{ padding: [35, 35], animate: true }});
+          isSyncing = false;
+        }}
 
         // Show floating back bar
         document.getElementById('floatingBackBar').style.display = 'block';
@@ -1320,15 +1394,18 @@ html_content = f"""<!DOCTYPE html>
       renderVillageDots();
     }}
 
+    let subdistLayersRisk = {{}}, subdistLayersBudget = {{}};
     function renderSubdistrictsForDistrict(distName) {{
       if (subdistrictGroupRisk) mapRisk.removeLayer(subdistrictGroupRisk);
       if (subdistrictGroupBudget) mapBudget.removeLayer(subdistrictGroupBudget);
+      subdistLayersRisk = {{}};
+      subdistLayersBudget = {{}};
 
       if (distName === 'all') return;
 
       const subFeats = SUBDISTRICTS_DATA.features.filter(f => {{
         const a = f.properties.amp_th || '';
-        return a.includes(distName) || distName.includes(a);
+        return a === distName || a.includes(distName) || distName.includes(a);
       }});
 
       if (subFeats.length > 0) {{
@@ -1342,13 +1419,26 @@ html_content = f"""<!DOCTYPE html>
           }},
           onEachFeature: (f, l) => {{
             const tamName = f.properties.tam_th;
+            subdistLayersRisk[tamName] = l;
             l.bindTooltip(`ต.${{tamName}}`, {{ direction: 'center', permanent: false }});
             l.on('click', (e) => {{
               L.DomEvent.stopPropagation(e);
               selectedSubdistrict = tamName;
               document.getElementById('subdistrictSelect').value = tamName;
               updateVillageDropdown(selectedDistrict, tamName);
-              highlightAndZoomSubdistrict(tamName);
+              highlightAndZoomSubdistrict(tamName, true);
+            }});
+            l.on('mouseover', () => {{
+              if (selectedSubdistrict !== tamName) {{
+                if (subdistLayersRisk[tamName]) subdistLayersRisk[tamName].setStyle({{ fillOpacity: 0.32, weight: 3 }});
+                if (subdistLayersBudget[tamName]) subdistLayersBudget[tamName].setStyle({{ fillOpacity: 0.32, weight: 3 }});
+              }}
+            }});
+            l.on('mouseout', () => {{
+              if (selectedSubdistrict !== tamName) {{
+                if (subdistLayersRisk[tamName]) subdistLayersRisk[tamName].setStyle({{ fillOpacity: 0.12, weight: 2 }});
+                if (subdistLayersBudget[tamName]) subdistLayersBudget[tamName].setStyle({{ fillOpacity: 0.12, weight: 2 }});
+              }}
             }});
           }}
         }}).addTo(mapRisk);
@@ -1363,13 +1453,26 @@ html_content = f"""<!DOCTYPE html>
           }},
           onEachFeature: (f, l) => {{
             const tamName = f.properties.tam_th;
+            subdistLayersBudget[tamName] = l;
             l.bindTooltip(`ต.${{tamName}}`, {{ direction: 'center', permanent: false }});
             l.on('click', (e) => {{
               L.DomEvent.stopPropagation(e);
               selectedSubdistrict = tamName;
               document.getElementById('subdistrictSelect').value = tamName;
               updateVillageDropdown(selectedDistrict, tamName);
-              highlightAndZoomSubdistrict(tamName);
+              highlightAndZoomSubdistrict(tamName, true);
+            }});
+            l.on('mouseover', () => {{
+              if (selectedSubdistrict !== tamName) {{
+                if (subdistLayersRisk[tamName]) subdistLayersRisk[tamName].setStyle({{ fillOpacity: 0.32, weight: 3 }});
+                if (subdistLayersBudget[tamName]) subdistLayersBudget[tamName].setStyle({{ fillOpacity: 0.32, weight: 3 }});
+              }}
+            }});
+            l.on('mouseout', () => {{
+              if (selectedSubdistrict !== tamName) {{
+                if (subdistLayersRisk[tamName]) subdistLayersRisk[tamName].setStyle({{ fillOpacity: 0.12, weight: 2 }});
+                if (subdistLayersBudget[tamName]) subdistLayersBudget[tamName].setStyle({{ fillOpacity: 0.12, weight: 2 }});
+              }}
             }});
           }}
         }}).addTo(mapBudget);
@@ -1379,21 +1482,43 @@ html_content = f"""<!DOCTYPE html>
     function highlightAndZoomSubdistrict(tamName, doZoom = true) {{
       if (subdistrictHighlightRisk) {{ mapRisk.removeLayer(subdistrictHighlightRisk); subdistrictHighlightRisk = null; }}
       if (subdistrictHighlightBudget) {{ mapBudget.removeLayer(subdistrictHighlightBudget); subdistrictHighlightBudget = null; }}
+      if (activePulseMarker) {{ mapRisk.removeLayer(activePulseMarker); activePulseMarker = null; }}
+      if (activePulseMarkerBudget) {{ mapBudget.removeLayer(activePulseMarkerBudget); activePulseMarkerBudget = null; }}
+
+      selectedVillageId = 'all';
+      const vilSel = document.getElementById('villageSelect');
+      if (vilSel) vilSel.value = 'all';
 
       if (tamName === 'all') {{
-        if (selectedDistrict !== 'all' && districtLayersRisk[selectedDistrict]) {{
-          const bounds = districtLayersRisk[selectedDistrict].getBounds();
-          mapRisk.fitBounds(bounds, {{ padding: [25, 25] }});
-          mapBudget.fitBounds(bounds, {{ padding: [25, 25] }});
+        selectedSubdistrict = 'all';
+        const subSel = document.getElementById('subdistrictSelect');
+        if (subSel) subSel.value = 'all';
+
+        if (selectedDistrict !== 'all') {{
+          updateVillageDropdown(selectedDistrict, 'all');
+          if (districtLayersRisk[selectedDistrict]) {{
+            const bounds = districtLayersRisk[selectedDistrict].getBounds();
+            mapRisk.fitBounds(bounds, {{ padding: [25, 25] }});
+            mapBudget.fitBounds(bounds, {{ padding: [25, 25] }});
+            showDistrictDetails(districtLayersRisk[selectedDistrict].feature.properties);
+          }}
+        }} else {{
+          resetToOverview();
+          return;
         }}
         renderSubdistrictsForDistrict(selectedDistrict);
         renderVillageDots();
         return;
       }}
 
+      selectedSubdistrict = tamName;
+      const subSel = document.getElementById('subdistrictSelect');
+      if (subSel) subSel.value = tamName;
+      updateVillageDropdown(selectedDistrict, tamName);
+
       const subFeat = SUBDISTRICTS_DATA.features.find(f => {{
         const matchT = (f.properties.tam_th === tamName || f.properties.tam_en === tamName);
-        const matchA = (selectedDistrict === 'all' || (f.properties.amp_th || '').includes(selectedDistrict));
+        const matchA = (selectedDistrict === 'all' || (f.properties.amp_th || '') === selectedDistrict || (f.properties.amp_th || '').includes(selectedDistrict));
         return matchT && matchA;
       }});
 
@@ -1453,7 +1578,9 @@ html_content = f"""<!DOCTYPE html>
       if (villagePointsLayer) mapRisk.removeLayer(villagePointsLayer);
       if (!showVillages) return;
 
-      const query = document.getElementById('searchInput').value.trim().toLowerCase();
+      const rawQuery = document.getElementById('searchInput').value.trim();
+      const query = rawQuery.toLowerCase();
+      const cleanQ = query.replace(/^(อำเภอ|ตำบล|หมู่บ้าน|บ้าน|อ\.|ต\.|ม\.)\s*/, '').trim();
 
       const filtered = VILLAGES_DATA.features.filter(f => {{
         const p = f.properties;
@@ -1480,7 +1607,7 @@ html_content = f"""<!DOCTYPE html>
 
         if (query) {{
           const full = `${{p.village}} ${{p.subdistrict}} ${{p.district}}`.toLowerCase();
-          if (!full.includes(query)) return false;
+          if (!full.includes(query) && (!cleanQ || !full.includes(cleanQ))) return false;
         }}
 
         return true;
@@ -1510,7 +1637,7 @@ html_content = f"""<!DOCTYPE html>
           if (selectedDistrict !== p.district) {{
             selectedDistrict = p.district;
             document.getElementById('districtSelect').value = p.district;
-            selectDistrictOnBothMaps(p.district, false);
+            selectDistrictOnBothMaps(p.district, false, false);
             updateSubdistrictDropdown(p.district);
           }}
           if (selectedSubdistrict !== p.subdistrict) {{
@@ -1522,15 +1649,35 @@ html_content = f"""<!DOCTYPE html>
           selectedVillageId = p.id;
           document.getElementById('villageSelect').value = p.id;
 
+          // Re-center both maps smoothly to the clicked village
+          isSyncing = true;
+          mapRisk.setView([lat, lng], Math.max(mapRisk.getZoom(), 14));
+          mapBudget.setView([lat, lng], Math.max(mapBudget.getZoom(), 14));
+          isSyncing = false;
+
+          // Add synchronized pulsing beacons on both maps
           if (activePulseMarker) mapRisk.removeLayer(activePulseMarker);
+          if (activePulseMarkerBudget) mapBudget.removeLayer(activePulseMarkerBudget);
+
           activePulseMarker = L.circleMarker([lat, lng], {{
             radius: 14,
             fillColor: '#1a73e8',
             color: '#1a73e8',
             weight: 3.5,
             opacity: 0.9,
-            fillOpacity: 0.45
+            fillOpacity: 0.45,
+            className: 'pulse-circle-marker'
           }}).addTo(mapRisk);
+
+          activePulseMarkerBudget = L.circleMarker([lat, lng], {{
+            radius: 14,
+            fillColor: '#0d47a1',
+            color: '#0d47a1',
+            weight: 3.5,
+            opacity: 0.9,
+            fillOpacity: 0.45,
+            className: 'pulse-circle-marker'
+          }}).addTo(mapBudget);
 
           document.getElementById('floatingBackBar').style.display = 'block';
           showVillageDetails(p);
@@ -1583,6 +1730,7 @@ html_content = f"""<!DOCTYPE html>
       if (subdistrictHighlightRisk) mapRisk.removeLayer(subdistrictHighlightRisk);
       if (subdistrictHighlightBudget) mapBudget.removeLayer(subdistrictHighlightBudget);
       if (activePulseMarker) {{ mapRisk.removeLayer(activePulseMarker); activePulseMarker = null; }}
+      if (activePulseMarkerBudget) {{ mapBudget.removeLayer(activePulseMarkerBudget); activePulseMarkerBudget = null; }}
 
       updatePolygonColors();
       updateOnMapLabels();
@@ -1640,7 +1788,7 @@ html_content = f"""<!DOCTYPE html>
 
       document.getElementById('dockAreaTitle').innerHTML = `
         <div class="dock-breadcrumbs">
-          <span class="bc-link" onclick="resetToOverview()" title="กลับภาพรวมทั้งจังหวัดเชียงใหม่">📍 เชียงใหม่</span>
+          <span class="bc-link" onclick="event.stopPropagation(); resetToOverview();" title="กลับภาพรวมทั้งจังหวัดเชียงใหม่">📍 เชียงใหม่</span>
           <span class="bc-sep">❯</span>
           <span class="bc-curr">🏛️ อ.${{ampName}}</span>
         </div>
@@ -1739,6 +1887,7 @@ html_content = f"""<!DOCTYPE html>
     function showSubdistrictDetails(tamName, distName) {{
       const dock = document.getElementById('smartDock');
       const vils = VILLAGES_DATA.features.filter(f => f.properties.subdistrict === tamName && (distName === 'all' || f.properties.district === distName));
+      const actualDist = (distName && distName !== 'all') ? distName : (vils[0] ? vils[0].properties.district : selectedDistrict);
       const stats = calculateScoreStats(vils);
 
       const avgScore = stats ? stats.avgTotal.toFixed(2) : '0.00';
@@ -1748,9 +1897,9 @@ html_content = f"""<!DOCTYPE html>
 
       document.getElementById('dockAreaTitle').innerHTML = `
         <div class="dock-breadcrumbs">
-          <span class="bc-link" onclick="resetToOverview()" title="กลับภาพรวมทั้งจังหวัดเชียงใหม่">📍 เชียงใหม่</span>
+          <span class="bc-link" onclick="event.stopPropagation(); resetToOverview();" title="กลับภาพรวมทั้งจังหวัดเชียงใหม่">📍 เชียงใหม่</span>
           <span class="bc-sep">❯</span>
-          <span class="bc-link" onclick="selectDistrictOnBothMaps('${{distName}}')" title="กลับระดับอำเภอ${{distName}}">🏛️ อ.${{distName}}</span>
+          <span class="bc-link" onclick="event.stopPropagation(); selectDistrictOnBothMaps('${{actualDist}}', true, true);" title="กลับระดับอำเภอ${{actualDist}}">🏛️ อ.${{actualDist}}</span>
           <span class="bc-sep">❯</span>
           <span class="bc-curr">🏘️ ต.${{tamName}}</span>
         </div>
@@ -1785,7 +1934,7 @@ html_content = f"""<!DOCTYPE html>
 
       document.getElementById('dockExpandedBody').innerHTML = `
         <div style="font-size:0.86rem; font-weight:700; margin-bottom:8px; color:#202124;">
-          🏘️ สรุปคะแนนตำบล ${{tamName}} (อำเภอ${{distName}}) | รวม ${{vils.length}} หมู่บ้าน
+          🏘️ สรุปคะแนนตำบล ${{tamName}} (อำเภอ${{actualDist}}) | รวม ${{vils.length}} หมู่บ้าน
         </div>
 
         <table class="score-table" style="margin-bottom:12px;">
@@ -1814,7 +1963,7 @@ html_content = f"""<!DOCTYPE html>
             else if (p.total_score >= 10) {{ badgeBg = '#feefe3'; badgeColor = '#b06000'; }}
             else if (p.total_score >= 8) {{ badgeBg = '#fef7e0'; badgeColor = '#8c5000'; }}
 
-            return `<span onclick="onSubdistrictVillageBadgeClick('${{p.id}}')" style="background:${{badgeBg}}; color:${{badgeColor}}; padding:4px 10px; border-radius:12px; font-size:0.76rem; font-weight:600; cursor:pointer; border:1px solid rgba(0,0,0,0.06);">
+            return `<span onclick="event.stopPropagation(); onSubdistrictVillageBadgeClick('${{p.id}}');" style="background:${{badgeBg}}; color:${{badgeColor}}; padding:4px 10px; border-radius:12px; font-size:0.76rem; font-weight:600; cursor:pointer; border:1px solid rgba(0,0,0,0.06);">
               ม.${{p.village}} (${{p.total_score}}/15 ⭐)
             </span>`;
           }}).join('')}}
@@ -1832,11 +1981,11 @@ html_content = f"""<!DOCTYPE html>
       const dock = document.getElementById('smartDock');
       document.getElementById('dockAreaTitle').innerHTML = `
         <div class="dock-breadcrumbs">
-          <span class="bc-link" onclick="resetToOverview()" title="กลับภาพรวมทั้งจังหวัดเชียงใหม่">📍 เชียงใหม่</span>
+          <span class="bc-link" onclick="event.stopPropagation(); resetToOverview();" title="กลับภาพรวมทั้งจังหวัดเชียงใหม่">📍 เชียงใหม่</span>
           <span class="bc-sep">❯</span>
-          <span class="bc-link" onclick="selectDistrictOnBothMaps('${{p.district}}')" title="กลับระดับอำเภอ${{p.district}}">🏛️ อ.${{p.district}}</span>
+          <span class="bc-link" onclick="event.stopPropagation(); selectDistrictOnBothMaps('${{p.district}}', true, true);" title="กลับระดับอำเภอ${{p.district}}">🏛️ อ.${{p.district}}</span>
           <span class="bc-sep">❯</span>
-          <span class="bc-link" onclick="highlightAndZoomSubdistrict('${{p.subdistrict}}')" title="กลับระดับตำบล${{p.subdistrict}}">🏘️ ต.${{p.subdistrict}}</span>
+          <span class="bc-link" onclick="event.stopPropagation(); highlightAndZoomSubdistrict('${{p.subdistrict}}', true);" title="กลับระดับตำบล${{p.subdistrict}}">🏘️ ต.${{p.subdistrict}}</span>
           <span class="bc-sep">❯</span>
           <span class="bc-curr">🏡 ม.${{p.village}}</span>
         </div>
@@ -1918,4 +2067,4 @@ with open('ChiangMai_Water_GIS_Dashboard.html', 'w', encoding='utf-8') as f:
 with open('index.html', 'w', encoding='utf-8') as f:
     f.write(html_content)
 
-print("Flawless Drilldown GIS updated with Floating Back Bar, Clickable Breadcrumbs, and Top-Right Zoom Controls!")
+print("Flawless Drilldown GIS updated and regenerated successfully!")
