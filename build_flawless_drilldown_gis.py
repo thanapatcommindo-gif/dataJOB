@@ -859,7 +859,7 @@ html_content = f"""<!DOCTYPE html>
     let subdistrictHighlightRisk = null, subdistrictHighlightBudget = null;
     let villagePointsLayer = null;
     let activePulseMarker = null, activePulseMarkerBudget = null;
-    let showVillages = true;
+    let showVillages = false; // Default: OFF (Clean overview, no scary clusters)
     let isSyncing = false;
     let cmBounds;
 
@@ -1380,9 +1380,9 @@ html_content = f"""<!DOCTYPE html>
       const distGroupRisk = L.geoJSON(DISTRICTS_DATA, {{
         style: (feat) => ({{
           fillColor: getDistrictRiskColor(feat.properties),
-          weight: 1.5,
+          weight: 2.2,
           opacity: 0.95,
-          color: '#ffffff',
+          color: '#1e293b',
           fillOpacity: 0.65
         }}),
         onEachFeature: (feat, layer) => {{
@@ -1414,9 +1414,9 @@ html_content = f"""<!DOCTYPE html>
       L.geoJSON(DISTRICTS_DATA, {{
         style: (feat) => ({{
           fillColor: getDistrictBudgetColor(feat.properties),
-          weight: 1.5,
+          weight: 2.2,
           opacity: 0.95,
-          color: '#ffffff',
+          color: '#1e293b',
           fillOpacity: 0.68
         }}),
         onEachFeature: (feat, layer) => {{
