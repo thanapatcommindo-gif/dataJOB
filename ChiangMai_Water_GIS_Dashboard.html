@@ -11,9 +11,9 @@
   <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
   
-  <!-- Leaflet CSS & JS -->
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <!-- Leaflet CSS & JS (Mobile & Proxy Safe CDN) -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
   
   <style>
     :root {
@@ -29,9 +29,20 @@
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Prompt', 'Google Sans', sans-serif; }
-    body { background: var(--bg); color: var(--text-main); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+    
+    html, body {
+      height: 100%;
+      min-height: 100%;
+      height: 100dvh;
+      background: var(--bg);
+      color: var(--text-main);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
 
-    /* Remove focus outlines & rectangles */
+    /* Remove focus outlines */
     path.leaflet-interactive:focus { outline: none !important; }
     svg:focus { outline: none !important; }
     .leaflet-container:focus { outline: none !important; }
@@ -46,7 +57,6 @@
       justify-content: space-between;
       z-index: 1000;
       box-shadow: 0 1px 3px rgba(60,64,67, 0.08);
-      flex-shrink: 0;
     }
     .header-brand { display: flex; align-items: center; gap: 12px; }
     .brand-icon {
@@ -56,80 +66,19 @@
       display: flex; align-items: center; justify-content: center;
       color: #fff; font-size: 22px;
     }
-    .brand-title { font-size: 1.05rem; font-weight: 700; color: #1a73e8; line-height: 1.2; }
+    .brand-title { font-size: 1.1rem; font-weight: 700; color: #1a73e8; line-height: 1.2; }
     .brand-sub { font-size: 0.76rem; color: var(--text-sub); }
 
-    /* Page Switcher Dropdown & Nav */
-    .nav-switcher {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .nav-dropdown-btn {
-      background: #f1f3f4;
-      border: 1px solid var(--border);
-      border-radius: 20px;
-      padding: 5px 12px;
-      font-size: 0.78rem;
-      font-weight: 600;
-      color: #202124;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-    .nav-dropdown-btn:hover {
-      background: #e8f0fe;
-      color: #1a73e8;
-      border-color: #aecbfa;
-    }
-    .nav-dropdown-menu {
-      position: absolute;
-      top: 52px;
-      left: 20px;
-      background: #ffffff;
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      box-shadow: var(--shadow-lg);
-      padding: 8px 0;
-      min-width: 280px;
-      z-index: 2000;
-      display: none;
-    }
-    .nav-dropdown-menu.show {
-      display: block;
-    }
-    .nav-menu-item {
-      padding: 8px 16px;
-      font-size: 0.8rem;
-      color: #3c4043;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      text-decoration: none;
-      transition: background 0.15s;
-    }
-    .nav-menu-item:hover {
-      background: #f1f3f4;
-      color: #1a73e8;
-    }
-    .nav-menu-item.active {
-      background: #e8f0fe;
-      color: #1a73e8;
-      font-weight: 700;
-    }
-
-    .header-kpis { display: flex; align-items: center; gap: 10px; }
+    .header-kpis { display: flex; align-items: center; gap: 12px; }
     .kpi-chip {
       background: #f8f9fa;
       border: 1px solid var(--border);
-      padding: 5px 12px;
+      padding: 6px 14px;
       border-radius: 20px;
-      font-size: 0.78rem;
+      font-size: 0.8rem;
       display: flex;
       align-items: center;
-      gap: 5px;
+      gap: 6px;
     }
     .kpi-chip strong { color: #1a73e8; font-weight: 700; }
 
@@ -137,14 +86,13 @@
     .filter-bar {
       background: #ffffff;
       border-bottom: 1px solid var(--border);
-      padding: 8px 24px;
+      padding: 10px 24px;
       display: flex;
       flex-wrap: wrap;
       align-items: center;
       justify-content: space-between;
-      gap: 8px;
+      gap: 10px;
       z-index: 900;
-      flex-shrink: 0;
     }
     .filter-group { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
     
@@ -161,12 +109,10 @@
       font-size: 0.82rem;
       outline: none;
       background: #f8fafd;
-      transition: all 0.2s;
     }
     .search-input-wrap input:focus {
       background: #fff;
       border-color: var(--primary);
-      box-shadow: 0 0 0 2px rgba(26,115,232,0.2);
     }
     .search-input-wrap .material-symbols-outlined {
       position: absolute;
@@ -178,7 +124,7 @@
 
     .filter-select {
       height: 36px;
-      padding: 0 12px;
+      padding: 0 10px;
       border: 1px solid var(--border);
       border-radius: 18px;
       font-size: 0.82rem;
@@ -187,8 +133,7 @@
       cursor: pointer;
       font-weight: 500;
       color: var(--text-main);
-      max-width: 180px;
-      transition: border-color 0.2s;
+      max-width: 170px;
     }
     .filter-select:focus {
       border-color: var(--primary);
@@ -204,14 +149,10 @@
       cursor: pointer;
       display: flex;
       align-items: center;
-      gap: 5px;
+      gap: 6px;
       font-weight: 600;
       color: var(--text-sub);
       transition: all 0.2s;
-    }
-    .layer-toggle-btn:hover {
-      background: #e8eaed;
-      color: var(--text-main);
     }
     .layer-toggle-btn.active {
       background: #e8f0fe;
@@ -227,13 +168,11 @@
       position: relative;
       background: #eaebed;
       gap: 2px;
-      min-height: 0;
     }
 
     .map-box {
       position: relative;
       height: 100%;
-      width: 100%;
       background: #fff;
     }
 
@@ -251,65 +190,11 @@
       display: flex;
       align-items: center;
       gap: 8px;
-      font-size: 0.84rem;
+      font-size: 0.86rem;
       font-weight: 700;
-      pointer-events: none;
     }
     .badge-risk { color: #d93025; border-left: 4px solid #d93025; }
     .badge-budget { color: #1a73e8; border-left: 4px solid #1a73e8; }
-
-    /* FLOATING BACK TO OVERVIEW BAR (Top Center) */
-    .floating-no-match {
-      position: absolute;
-      top: 56px;
-      left: 50%;
-      transform: translateX(-50%);
-      z-index: 640;
-      background: #fef7e0;
-      color: #b06000;
-      border: 1.5px solid #f9ab00;
-      padding: 6px 18px;
-      border-radius: 20px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-      font-size: 0.8rem;
-      font-weight: 700;
-      display: none;
-      animation: fadeIn 0.3s ease;
-    }
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translate(-50%, -8px); }
-      to { opacity: 1; transform: translate(-50%, 0); }
-    }
-
-    .floating-back-bar {
-      position: absolute;
-      top: 14px;
-      left: 50%;
-      transform: translateX(-50%);
-      z-index: 650;
-      display: none;
-    }
-    .btn-floating-back {
-      background: #ffffff;
-      color: #1a73e8;
-      border: 1.5px solid #aecbfa;
-      padding: 7px 18px;
-      border-radius: 24px;
-      box-shadow: 0 4px 14px rgba(0,0,0,0.16);
-      font-size: 0.84rem;
-      font-weight: 700;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      transition: all 0.2s ease;
-    }
-    .btn-floating-back:hover {
-      background: #e8f0fe;
-      color: #1557b0;
-      transform: scale(1.04);
-      box-shadow: 0 6px 18px rgba(0,0,0,0.22);
-    }
 
     .map-legend-card {
       position: absolute;
@@ -323,133 +208,85 @@
       box-shadow: var(--shadow);
       border: 1px solid var(--border);
       font-size: 0.74rem;
-      pointer-events: none;
     }
     .legend-title { font-weight: 700; margin-bottom: 6px; color: var(--text-main); }
     .legend-row { display: flex; align-items: center; gap: 8px; margin-bottom: 3px; }
     .legend-color { width: 14px; height: 12px; border-radius: 3px; display: inline-block; }
 
-    /* SMART FLOATING BOTTOM DOCK */
+    /* ========================================================= */
+    /* SMART FLOATING BOTTOM DOCK (Does NOT cover the map!)       */
+    /* ========================================================= */
     .smart-dock {
       position: absolute;
       bottom: 16px;
       left: 50%;
       transform: translateX(-50%);
-      z-index: 750;
+      z-index: 700;
       background: #ffffff;
       border-radius: 16px;
-      box-shadow: 0 6px 24px rgba(0,0,0,0.18);
+      box-shadow: var(--shadow-lg);
       border: 1px solid var(--border);
-      width: 92%;
-      max-width: 920px;
+      width: 90%;
+      max-width: 760px;
       display: none;
       flex-direction: column;
       overflow: hidden;
-      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
+
+    /* Compact Top Bar of the Dock */
     .dock-summary-bar {
       padding: 10px 18px;
-      background: #ffffff;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 12px;
+      background: #ffffff;
       cursor: pointer;
       user-select: none;
-      flex-wrap: wrap;
+      min-height: 48px;
+    }
+    .dock-summary-bar:hover {
+      background: #f8fafd;
     }
     .dock-title-group {
       display: flex;
       align-items: center;
-      gap: 8px;
-      flex-wrap: wrap;
-      flex: 1;
-      min-width: 280px;
-    }
-    
-    /* Breadcrumbs navigation */
-    .dock-breadcrumbs {
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
+      gap: 12px;
       font-size: 0.88rem;
-      font-weight: 700;
-      flex-wrap: wrap;
     }
-    .bc-link {
+    .dock-title-group .area-title {
+      font-weight: 700;
       color: #1a73e8;
-      cursor: pointer;
-      padding: 2px 6px;
-      border-radius: 6px;
-      transition: all 0.15s;
+      font-size: 0.96rem;
     }
-    .bc-link:hover {
-      background: #e8f0fe;
-      text-decoration: underline;
-    }
-    .bc-sep {
-      color: #9aa0a6;
-      font-size: 0.72rem;
-    }
-    .bc-curr {
-      color: #202124;
-      font-weight: 700;
-    }
-
     .dock-stat-pill {
       background: #f1f3f4;
-      padding: 4px 10px;
+      padding: 3px 10px;
       border-radius: 12px;
-      font-size: 0.76rem;
+      font-size: 0.78rem;
+      color: #3c4043;
       font-weight: 600;
-      color: var(--text-main);
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      white-space: nowrap;
     }
-    .pill-score { background: #fef7e0; color: #b06000; border: 1px solid #f9ab00; }
-    .pill-risk { background: #fce8e6; color: #c5221f; border: 1px solid #ea4335; }
-    .pill-budget { background: #e8f0fe; color: #1967d2; border: 1px solid #aecbfa; }
 
     .dock-actions {
       display: flex;
       align-items: center;
       gap: 8px;
     }
-    .btn-dock-home {
-      background: #f1f3f4;
-      color: #3c4043;
-      border: 1px solid #dadce0;
-      padding: 5px 12px;
-      border-radius: 14px;
-      font-size: 0.78rem;
-      font-weight: 600;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      transition: all 0.2s;
-    }
-    .btn-dock-home:hover {
-      background: #e8f0fe;
-      color: #1a73e8;
-      border-color: #aecbfa;
-    }
-
     .btn-toggle-expand {
       background: #e8f0fe;
       color: #1a73e8;
       border: none;
-      padding: 5px 12px;
+      padding: 4px 12px;
       border-radius: 14px;
       font-size: 0.78rem;
       font-weight: 600;
-      cursor: pointer;
       display: flex;
       align-items: center;
       gap: 4px;
+      cursor: pointer;
     }
+    .btn-toggle-expand:hover { background: #d2e3fc; }
     .btn-close-dock {
       background: none;
       border: none;
@@ -457,126 +294,83 @@
       cursor: pointer;
       display: flex;
       align-items: center;
-      padding: 4px;
-      border-radius: 50%;
     }
-    .btn-close-dock:hover { background: #f1f3f4; }
 
+    /* Expandable Body of the Dock */
     .dock-expanded-content {
       max-height: 0;
       overflow: hidden;
-      transition: max-height 0.3s ease;
-      background: #fafbfc;
-      border-top: 1px solid #f1f3f4;
+      transition: max-height 0.35s ease-out;
+      background: #fdfdfd;
+      border-top: 1px solid transparent;
     }
     .smart-dock.expanded .dock-expanded-content {
-      max-height: 420px;
+      max-height: 380px;
+      border-top: 1px solid #e8eaed;
       overflow-y: auto;
     }
     .dock-inner-padding {
-      padding: 14px 18px;
+      padding: 16px 20px;
     }
 
-    @keyframes pulse-ring {
-      0% { stroke-width: 3.5px; stroke-opacity: 0.95; fill-opacity: 0.55; }
-      50% { stroke-width: 8px; stroke-opacity: 0.35; fill-opacity: 0.2; }
-      100% { stroke-width: 3.5px; stroke-opacity: 0.95; fill-opacity: 0.55; }
+    /* Custom On-Map Direct Labels for Districts */
+    .onmap-label-risk {
+      background: rgba(255, 255, 255, 0.94);
+      border: 1.5px solid #d93025;
+      border-radius: 14px;
+      padding: 3px 8px;
+      font-size: 11px;
+      color: #202124;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.18);
+      white-space: nowrap;
+      text-align: center;
+      pointer-events: none;
+      transform: translate(-50%, -50%);
     }
-    .pulse-circle-marker {
-      animation: pulse-ring 1.8s infinite ease-in-out;
-    }
+    .onmap-label-risk .dname { font-weight: 700; color: #d93025; font-size: 11px; }
+    .onmap-label-risk .dstat { font-size: 10px; color: #3c4043; font-weight: 600; }
 
-    /* Custom On-Map Text Labels */
-    .custom-leaflet-tooltip {
+    .onmap-label-budget {
+      background: rgba(255, 255, 255, 0.94);
+      border: 1.5px solid #1a73e8;
+      border-radius: 14px;
+      padding: 3px 8px;
+      font-size: 11px;
+      color: #202124;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.18);
+      white-space: nowrap;
+      text-align: center;
+      pointer-events: none;
+      transform: translate(-50%, -50%);
+    }
+    .onmap-label-budget .dname { font-weight: 700; color: #1a73e8; font-size: 11px; }
+    .onmap-label-budget .dstat { font-size: 10px; color: #3c4043; font-weight: 600; }
+
+    .leaflet-tooltip-pane .leaflet-tooltip {
       background: transparent !important;
       border: none !important;
       box-shadow: none !important;
       padding: 0 !important;
     }
-    .onmap-label-risk, .onmap-label-budget {
-      text-align: center;
-      pointer-events: none;
-    }
-    .onmap-label-risk .dname, .onmap-label-budget .dname {
-      font-weight: 700;
-      font-size: 11.5px;
-      color: #1f1f1f;
-      text-shadow: 1px 1px 3px #fff, -1px -1px 3px #fff, 1px -1px 3px #fff, -1px 1px 3px #fff;
-    }
-    .onmap-label-risk .dstat {
-      font-size: 10px;
-      font-weight: 700;
-      color: #b71c1c;
-      background: rgba(255, 255, 255, 0.92);
-      padding: 1px 6px;
-      border-radius: 8px;
-      border: 1px solid rgba(183, 28, 28, 0.3);
-      display: inline-block;
-      margin-top: 1px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.12);
-    }
-    .onmap-label-budget .dstat {
-      font-size: 10px;
-      font-weight: 700;
-      color: #0d47a1;
-      background: rgba(255, 255, 255, 0.92);
-      padding: 1px 6px;
-      border-radius: 8px;
-      border: 1px solid rgba(13, 71, 161, 0.3);
-      display: inline-block;
-      margin-top: 1px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.12);
-    }
 
-    /* Table styles for comprehensive 5-pillar scores */
-    .score-table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 0.78rem;
-      margin-top: 8px;
-      background: #fff;
-      border-radius: 8px;
-      overflow: hidden;
-      border: 1px solid #e8eaed;
+    /* Pulsing beacon animation for selected village point */
+    @keyframes pulseRing {
+      0% { transform: scale(0.6); opacity: 1; }
+      100% { transform: scale(2.6); opacity: 0; }
     }
-    .score-table th {
-      background: #f1f3f4;
-      padding: 6px 10px;
-      text-align: center;
-      font-weight: 600;
-      color: #3c4043;
-      border-bottom: 1px solid #dadce0;
-    }
-    .score-table td {
-      padding: 6px 10px;
-      text-align: center;
-      border-bottom: 1px solid #f1f3f4;
-    }
-    .score-table tr:hover td {
-      background: #f8fafd;
-    }
-    .score-bar-wrap {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-    .score-bar-bg {
-      flex: 1;
-      height: 8px;
-      background: #e8eaed;
-      border-radius: 4px;
-      overflow: hidden;
-    }
-    .score-bar-fill {
-      height: 100%;
-      border-radius: 4px;
-      transition: width 0.3s;
+    .village-pulse-icon {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: rgba(26, 115, 232, 0.4);
+      animation: pulseRing 1.5s infinite ease-out;
+      pointer-events: none;
     }
   </style>
 </head>
 <body>
 
-  <!-- Google Style Header -->
+  <!-- Top Brand Navigation Header -->
   <header>
     <div class="header-brand">
       <div class="brand-icon">
@@ -588,68 +382,23 @@
       </div>
     </div>
 
-    <!-- Navigation Switcher Menu -->
-    <div class="nav-switcher">
-      <div style="position:relative;">
-        <button class="nav-dropdown-btn" onclick="toggleNavDropdown(event)">
-          <span class="material-symbols-outlined" style="font-size:16px; color:#1a73e8;">apps</span>
-          <span>สลับหน้าแดชบอร์ด</span>
-          <span class="material-symbols-outlined" style="font-size:14px;">arrow_drop_down</span>
-        </button>
-        <div class="nav-dropdown-menu" id="navDropdownMenu">
-          <a href="index.html" class="nav-menu-item active">
-            <span class="material-symbols-outlined" style="color:#1a73e8;">map</span>
-            <div>
-              <div style="font-weight:700;">1. แผนที่คู่ขนาน (Dual GIS)</div>
-              <div style="font-size:0.7rem; color:#5f6368;">เปรียบเทียบความเสี่ยง 5 มิติ vs งบประมาณ (หน้านี้)</div>
-            </div>
-          </a>
-          <a href="ChiangMai_Water_Triple_Gap_GIS_Dashboard.html" class="nav-menu-item">
-            <span class="material-symbols-outlined" style="color:#7c3aed;">balance</span>
-            <div>
-              <div style="font-weight:600;">2. วิเคราะห์ช่องว่าง 3 แผนที่ (Triple Sync GIS)</div>
-              <div style="font-size:0.7rem; color:#5f6368;">ความเสี่ยง vs งบประมาณ vs Gap Analysis (หน้าใหม่)</div>
-            </div>
-          </a>
-          <a href="ChiangMai_Water_Dashboard.html" class="nav-menu-item">
-            <span class="material-symbols-outlined" style="color:#059669;">analytics</span>
-            <div>
-              <div style="font-weight:600;">3. รายงานผู้บริหาร & สถิติภาพรวม</div>
-              <div style="font-size:0.7rem; color:#5f6368;">Executive Overview & Summary Cards</div>
-            </div>
-          </a>
-          <a href="ChiangMai_Flood_Household_GIS_Dashboard.html" class="nav-menu-item">
-            <span class="material-symbols-outlined" style="color:#d97706;">home</span>
-            <div>
-              <div style="font-weight:600;">4. สำรวจครัวเรือนน้ำท่วม (Flood Survey)</div>
-              <div style="font-size:0.7rem; color:#5f6368;">ข้อมูลระดับครัวเรือน 4,450 ครัวเรือน</div>
-            </div>
-          </a>
-        </div>
-      </div>
-    </div>
-
     <div class="header-kpis">
       <div class="kpi-chip">
-        <span class="material-symbols-outlined" style="color:#1a73e8; font-size:17px;">payments</span>
+        <span class="material-symbols-outlined" style="color:#1a73e8; font-size:18px;">payments</span>
         งบประมาณรวม: <strong>35,094.77 ลบ.</strong>
       </div>
       <div class="kpi-chip">
-        <span class="material-symbols-outlined" style="color:#1a73e8; font-size:17px;">construction</span>
+        <span class="material-symbols-outlined" style="color:#1a73e8; font-size:18px;">construction</span>
         โครงการ: <strong>6,312 โครงการ</strong>
       </div>
       <div class="kpi-chip">
-        <span class="material-symbols-outlined" style="color:#d93025; font-size:17px;">warning</span>
-        จุดเสี่ยงสูง: <strong>1,040 จุด</strong>
-      </div>
-      <div class="kpi-chip">
-        <span class="material-symbols-outlined" style="color:#f9ab00; font-size:17px;">star</span>
-        คะแนนเฉลี่ย: <strong>7.85 / 15</strong>
+        <span class="material-symbols-outlined" style="color:#d93025; font-size:18px;">warning</span>
+        จุดเสี่ยง: <strong>2,200 หมู่บ้าน</strong>
       </div>
     </div>
   </header>
 
-  <!-- Filter & Control Bar (3-Tier Drill-Down) -->
+  <!-- Filter & Control Bar (3-Tier Drill-Down: อำเภอ > ตำบล > หมู่บ้าน) -->
   <div class="filter-bar">
     <div class="filter-group">
       
@@ -666,12 +415,12 @@
 
       <!-- Subdistrict Selector -->
       <select class="filter-select" id="subdistrictSelect" onchange="onSubdistrictChange()">
-        <option value="all">🏘️ ทุกตำบล (204 ตำบล)</option>
+        <option value="all">🏘️ ทุกตำบล</option>
       </select>
 
       <!-- Village Selector -->
       <select class="filter-select" id="villageSelect" onchange="onVillageChange()">
-        <option value="all">🏡 ทุกหมู่บ้าน (2,200 หมู่บ้าน)</option>
+        <option value="all">🏡 ทุกหมู่บ้าน</option>
       </select>
 
       <!-- 5 Pillars Selector -->
@@ -686,32 +435,15 @@
 
       <!-- Risk Level Score Selector -->
       <select class="filter-select" id="riskLevelSelect" onchange="onFilterUpdate()">
-        <option value="all">⚡ ทุกระดับความเสี่ยง (1-3)</option>
+        <option value="all">⚡ ทุกระดับความเสี่ยง</option>
         <option value="เสี่ยงสูง">🚨 เสี่ยงสูง (คะแนน 3)</option>
         <option value="เสี่ยงปานกลาง">🟡 เสี่ยงปานกลาง (คะแนน 2)</option>
         <option value="เสี่ยงน้อย">🟢 เสี่ยงน้อย (คะแนน 1)</option>
       </select>
-
-      <!-- Total Score Filter -->
-      <select class="filter-select" id="totalScoreSelect" onchange="onFilterUpdate()">
-        <option value="all">🎯 ทุกช่วงคะแนนรวม (5-15)</option>
-        <option value="12-15">🚨 วิกฤติสูงมาก (12-15 คะแนน)</option>
-        <option value="10-11">🟠 เฝ้าระวังสูง (10-11 คะแนน)</option>
-        <option value="8-9">🟡 เฝ้าระวังปานกลาง (8-9 คะแนน)</option>
-        <option value="5-7">🟢 ความเสี่ยงต่ำ (5-7 คะแนน)</option>
-      </select>
     </div>
 
-    <!-- Toggle Village Points Layer, Zoom Controls & Reset View -->
+    <!-- Toggle Village Points Layer & Reset View -->
     <div class="filter-group">
-      <button class="layer-toggle-btn" onclick="zoomInBoth()" title="ซูมเข้าทั้ง 2 แผนที่">
-        <span class="material-symbols-outlined" style="font-size:18px;">add</span>
-      </button>
-
-      <button class="layer-toggle-btn" onclick="zoomOutBoth()" title="ซูมออกทั้ง 2 แผนที่">
-        <span class="material-symbols-outlined" style="font-size:18px;">remove</span>
-      </button>
-
       <button class="layer-toggle-btn active" id="btn-toggle-villages" onclick="toggleVillagePoints()">
         <span class="material-symbols-outlined" style="font-size:18px;">pin_drop</span>
         <span>หมุด 2,200 หมู่บ้าน</span>
@@ -765,35 +497,19 @@
       </div>
     </div>
 
-    <!-- NO MATCH NOTIFICATION BANNER -->
-    <div class="floating-no-match" id="noMatchBanner">⚠️ ไม่มีหมู่บ้านที่ตรงกับเงื่อนไขตัวกรองในพื้นที่นี้</div>
-
-    <!-- FLOATING BACK TO OVERVIEW BUTTON (Top Center) -->
-    <div class="floating-back-bar" id="floatingBackBar">
-      <button class="btn-floating-back" onclick="resetToOverview()" title="ย้อนกลับไปดูภาพรวมทั้ง 25 อำเภอ">
-        <span class="material-symbols-outlined" style="font-size:18px;">arrow_back</span>
-        <span id="floatingBackText">ย้อนกลับภาพรวม จ.เชียงใหม่</span>
-      </button>
-    </div>
-
-    <!-- SMART FLOATING BOTTOM DOCK -->
+    <!-- SMART FLOATING BOTTOM DOCK (Does NOT cover the map!) -->
     <div class="smart-dock" id="smartDock">
       <div class="dock-summary-bar" onclick="toggleDockExpand()">
-        <div class="dock-title-group" id="dockTitleGroup">
+        <div class="dock-title-group">
           <span class="material-symbols-outlined" style="color:#1a73e8; font-size:22px;">info</span>
-          <span class="area-title" id="dockAreaTitle">อ.ดอยสะเก็ด</span>
-          <span class="dock-stat-pill pill-score" id="dockPillScore">⭐ เฉลี่ย 9.4/15</span>
-          <span class="dock-stat-pill pill-risk" id="dockPillRisk">🔴 สูง 111 | 🟡 กลาง 273 | 🟢 น้อย 176</span>
-          <span class="dock-stat-pill pill-budget" id="dockPillBudget">💰 1,357 ลบ. (310 โครงการ)</span>
+          <span class="area-title" id="dockAreaTitle">อ.สันกำแพง</span>
+          <span class="dock-stat-pill" id="dockPillBudget">💰 599.7 ลบ. (213 โครงการ)</span>
+          <span class="dock-stat-pill" id="dockPillRisk">🔴 79 จุดเสี่ยง</span>
         </div>
         <div class="dock-actions" onclick="event.stopPropagation()">
-          <button class="btn-dock-home" onclick="resetToOverview()" title="กลับสู่ภาพรวมทั้ง 25 อำเภอ">
-            <span class="material-symbols-outlined" style="font-size:16px;">restart_alt</span>
-            <span>กลับภาพรวม</span>
-          </button>
           <button class="btn-toggle-expand" id="btnDockExpand" onclick="toggleDockExpand()">
             <span class="material-symbols-outlined" style="font-size:16px;" id="expandIcon">expand_less</span>
-            <span id="expandText">ดูคะแนน 5 มิติ</span>
+            <span id="expandText">ดู 5 มิติ</span>
           </button>
           <button class="btn-close-dock" onclick="closeDock()">
             <span class="material-symbols-outlined">close</span>
@@ -817,19 +533,16 @@
     let mapRisk, mapBudget;
     let districtLayersRisk = {}, districtLayersBudget = {};
     let subdistrictGroupRisk = null, subdistrictGroupBudget = null;
-    let subdistrictHighlightRisk = null, subdistrictHighlightBudget = null;
     let villagePointsLayer = null;
-    let activePulseMarker = null, activePulseMarkerBudget = null;
-    let showVillages = false; // Default: OFF (Clean overview, no scary clusters)
+    let activePulseMarker = null;
+    let showVillages = true;
     let isSyncing = false;
     let cmBounds;
-
     let selectedDistrict = 'all';
     let selectedSubdistrict = 'all';
-    let selectedVillageId = 'all';
+    let selectedVillage = 'all';
     let selectedPillar = 'all';
     let selectedRiskLevel = 'all';
-    let selectedScoreRange = 'all';
 
     window.addEventListener('DOMContentLoaded', () => {
       initMaps();
@@ -843,7 +556,7 @@
       const initialZoom = 9;
       const googleMapsUrl = 'https://mt1.google.com/vt/lyrs=m&hl=th&x={x}&y={y}&z={z}';
 
-      // Left Map: zoomControl is FALSE so NO buttons appear in the middle seam!
+      // Left Map
       mapRisk = L.map('map-risk', {
         center: cmCenter,
         zoom: initialZoom,
@@ -851,8 +564,9 @@
         boxZoom: false
       });
       L.tileLayer(googleMapsUrl, { maxZoom: 18, attribution: '© Google Maps' }).addTo(mapRisk);
+      L.control.zoom({ position: 'bottomright' }).addTo(mapRisk);
 
-      // Right Map: zoom control placed at TOP RIGHT of screen, far away from any text or dock!
+      // Right Map
       mapBudget = L.map('map-budget', {
         center: cmCenter,
         zoom: initialZoom,
@@ -860,7 +574,7 @@
         boxZoom: false
       });
       L.tileLayer(googleMapsUrl, { maxZoom: 18, attribution: '© Google Maps' }).addTo(mapBudget);
-      L.control.zoom({ position: 'topright' }).addTo(mapBudget);
+      L.control.zoom({ position: 'bottomright' }).addTo(mapBudget);
 
       // Synchronize Left -> Right
       mapRisk.on('move', () => {
@@ -879,78 +593,10 @@
           isSyncing = false;
         }
       });
-
-      // Handle window resize dynamically to prevent any grey tiles
-      window.addEventListener('resize', () => {
-        if (mapRisk) mapRisk.invalidateSize();
-        if (mapBudget) mapBudget.invalidateSize();
-      });
     }
 
-    function zoomInBoth() {
-      mapRisk.zoomIn();
-    }
-
-    function zoomOutBoth() {
-      mapRisk.zoomOut();
-    }
-
-    /* ========================================================= */
-    /* HELPER: CALCULATE COMPREHENSIVE SCORE STATISTICS          */
-    /* ========================================================= */
-    function calculateScoreStats(features) {
-      const count = features.length;
-      if (count === 0) return null;
-
-      const totalScores = features.map(f => f.properties.total_score || 0);
-      const avgTotal = totalScores.reduce((a,b) => a+b, 0) / count;
-
-      const pillarNames = [
-        '💧 ด้าน 1: น้ำอุปโภคบริโภค',
-        '🌾 ด้าน 2: น้ำภาคเกษตร',
-        '🌊 ด้าน 3: น้ำท่วมและอุทกภัย',
-        '🧪 ด้าน 4: คุณภาพน้ำและการอนุรักษ์',
-        '🌲 ด้าน 5: ฟื้นฟูป่าต้นน้ำ'
-      ];
-
-      const pillars = [];
-      for (let p = 1; p <= 5; p++) {
-        const scores = features.map(f => f.properties[`p${p}_score`] || 1);
-        const avgP = scores.reduce((a,b) => a+b, 0) / count;
-        const highC = scores.filter(s => s === 3).length;
-        const medC = scores.filter(s => s === 2).length;
-        const lowC = scores.filter(s => s === 1).length;
-        pillars.push({
-          index: p,
-          name: pillarNames[p-1],
-          avg: avgP,
-          high: highC,
-          med: medC,
-          low: lowC
-        });
-      }
-
-      const totalHigh = pillars.reduce((a,b) => a + b.high, 0);
-      const totalMed = pillars.reduce((a,b) => a + b.med, 0);
-      const totalLow = pillars.reduce((a,b) => a + b.low, 0);
-
-      return {
-        count,
-        avgTotal,
-        pillars,
-        totalHigh,
-        totalMed,
-        totalLow
-      };
-    }
-
-    /* ========================================================= */
-    /* 3-TIER DROPDOWN POPULATION & SYNCHRONIZATION              */
-    /* ========================================================= */
     function populateDropdowns() {
-      // Populate Districts
       const distSelect = document.getElementById('districtSelect');
-      distSelect.innerHTML = '<option value="all">📍 ทุกอำเภอ (25 อำเภอ)</option>';
       const districts = [...new Set(VILLAGES_DATA.features.map(f => f.properties.district))].sort((a,b) => a.localeCompare(b, 'th'));
 
       districts.forEach(d => {
@@ -959,45 +605,22 @@
         opt.textContent = `📍 อ.${d}`;
         distSelect.appendChild(opt);
       });
-
-      // Populate Subdistricts (initial state: all 204 subdistricts)
-      updateSubdistrictDropdown('all');
-
-      // Populate Dropdowns & Filter live counts
-      updateFilterDropdownOptions();
-      updateVillageDropdown('all', 'all');
     }
 
-    function updateSubdistrictDropdown(distName) {
+    function onDistrictChange() {
+      selectedDistrict = document.getElementById('districtSelect').value;
       const subSelect = document.getElementById('subdistrictSelect');
-      
-      if (distName === 'all') {
-        subSelect.innerHTML = '<option value="all">🏘️ ทุกตำบล (204 ตำบล)</option>';
-        const pairs = [];
-        const seen = new Set();
-        VILLAGES_DATA.features.forEach(f => {
-          const key = `${f.properties.district}|${f.properties.subdistrict}`;
-          if (!seen.has(key)) {
-            seen.add(key);
-            pairs.push({ district: f.properties.district, subdistrict: f.properties.subdistrict });
-          }
-        });
-        pairs.sort((a,b) => a.subdistrict.localeCompare(b.subdistrict, 'th'));
+      const vilSelect = document.getElementById('villageSelect');
+      subSelect.innerHTML = '<option value="all">🏘️ ทุกตำบล</option>';
+      vilSelect.innerHTML = '<option value="all">🏡 ทุกหมู่บ้าน</option>';
 
-        pairs.forEach(p => {
-          const opt = document.createElement('option');
-          opt.value = `${p.district}|${p.subdistrict}`;
-          opt.textContent = `ต.${p.subdistrict} (อ.${p.district})`;
-          subSelect.appendChild(opt);
-        });
-      } else {
+      if (selectedDistrict !== 'all') {
+        // Populate subdistricts of this district
         const subdistricts = [...new Set(
           VILLAGES_DATA.features
-            .filter(f => f.properties.district === distName)
+            .filter(f => f.properties.district === selectedDistrict)
             .map(f => f.properties.subdistrict)
         )].sort((a,b) => a.localeCompare(b, 'th'));
-
-        subSelect.innerHTML = `<option value="all">🏘️ ทุกตำบลใน อ.${distName} (${subdistricts.length} ตำบล)</option>`;
 
         subdistricts.forEach(s => {
           const opt = document.createElement('option');
@@ -1005,208 +628,86 @@
           opt.textContent = `ต.${s}`;
           subSelect.appendChild(opt);
         });
+
+        // Populate villages of this district
+        const villages = [...new Set(
+          VILLAGES_DATA.features
+            .filter(f => f.properties.district === selectedDistrict)
+            .map(f => f.properties.village)
+        )].sort((a,b) => a.localeCompare(b, 'th'));
+
+        villages.forEach(v => {
+          const opt = document.createElement('option');
+          opt.value = v;
+          opt.textContent = `ม.${v}`;
+          vilSelect.appendChild(opt);
+        });
       }
+      selectedSubdistrict = 'all';
+      selectedVillage = 'all';
+      selectDistrictOnBothMaps(selectedDistrict);
     }
 
-    function updateVillageDropdown(distName, subName) {
+    function onSubdistrictChange() {
+      selectedSubdistrict = document.getElementById('subdistrictSelect').value;
       const vilSelect = document.getElementById('villageSelect');
-      const prevVal = vilSelect ? vilSelect.value : 'all';
+      vilSelect.innerHTML = '<option value="all">🏡 ทุกหมู่บ้าน</option>';
 
-      const filtered = VILLAGES_DATA.features.filter(f => {
-        const p = f.properties;
-        // If this specific village is selected, ALWAYS include it!
-        if (selectedVillageId !== 'all' && p.id == selectedVillageId) return true;
+      if (selectedSubdistrict !== 'all') {
+        const villages = [...new Set(
+          VILLAGES_DATA.features
+            .filter(f => (selectedDistrict === 'all' || f.properties.district === selectedDistrict) && f.properties.subdistrict === selectedSubdistrict)
+            .map(f => f.properties.village)
+        )].sort((a,b) => a.localeCompare(b, 'th'));
 
-        if (distName !== 'all' && p.district !== distName) return false;
-        if (subName !== 'all' && subName && p.subdistrict !== subName) return false;
-
-        // Apply active pillar & riskLevel filter
-        if (selectedPillar !== 'all' && selectedRiskLevel !== 'all') {
-          const pScore = p[`${selectedPillar}_score`];
-          if (selectedRiskLevel === 'เสี่ยงสูง' && pScore !== 3) return false;
-          if (selectedRiskLevel === 'เสี่ยงปานกลาง' && pScore !== 2) return false;
-          if (selectedRiskLevel === 'เสี่ยงน้อย' && pScore !== 1) return false;
-        } else if (selectedRiskLevel !== 'all') {
-          if (selectedRiskLevel === 'เสี่ยงสูง') {
-            const hasHigh = (p.p1_score === 3 || p.p2_score === 3 || p.p3_score === 3 || p.p4_score === 3 || p.p5_score === 3);
-            if (!hasHigh && !p.priority.includes('วิกฤติ') && !p.priority.includes('เฝ้าระวังสูง')) return false;
-          } else if (selectedRiskLevel === 'เสี่ยงปานกลาง') {
-            const hasMed = (p.p1_score === 2 || p.p2_score === 2 || p.p3_score === 2 || p.p4_score === 2 || p.p5_score === 2);
-            if (!hasMed && !p.priority.includes('เฝ้าระวังปานกลาง')) return false;
-          } else if (selectedRiskLevel === 'เสี่ยงน้อย') {
-            const isAllLow = (p.p1_score === 1 && p.p2_score === 1 && p.p3_score === 1 && p.p4_score === 1 && p.p5_score === 1);
-            if (!isAllLow && !p.priority.includes('เสี่ยงต่ำ')) return false;
-          }
-        }
-
-        // Apply active score range filter
-        if (selectedScoreRange !== 'all') {
-          const sc = p.total_score || 0;
-          if (selectedScoreRange === '12-15' && sc < 12) return false;
-          if (selectedScoreRange === '10-11' && (sc < 10 || sc > 11)) return false;
-          if (selectedScoreRange === '8-9' && (sc < 8 || sc > 9)) return false;
-          if (selectedScoreRange === '5-7' && sc > 7) return false;
-        }
-
-        return true;
-      }).sort((a,b) => a.properties.village.localeCompare(b.properties.village, 'th'));
-
-      const scopeText = (subName && subName !== 'all') ? `ใน ต.${subName}` : (distName && distName !== 'all') ? `ใน อ.${distName}` : '';
-      if (filtered.length === 0) {
-        vilSelect.innerHTML = `<option value="all">⚠️ ไม่มีหมู่บ้านตรงเงื่อนไข (0 หมู่บ้าน)</option>`;
-      } else {
-        vilSelect.innerHTML = `<option value="all">🏡 ทุกหมู่บ้าน${scopeText} (${filtered.length} หมู่บ้าน)</option>`;
-        filtered.forEach(f => {
-          const p = f.properties;
+        villages.forEach(v => {
           const opt = document.createElement('option');
-          opt.value = p.id;
-          opt.textContent = (subName && subName !== 'all') ? `ม.${p.village} [${p.total_score}/15]` : `ม.${p.village} (ต.${p.subdistrict}) [${p.total_score}/15]`;
+          opt.value = v;
+          opt.textContent = `ม.${v}`;
           vilSelect.appendChild(opt);
         });
       }
 
-      if (selectedVillageId !== 'all') {
-        vilSelect.value = selectedVillageId;
-      } else if (prevVal !== 'all' && filtered.some(f => f.properties.id == prevVal)) {
-        vilSelect.value = prevVal;
-      } else {
-        vilSelect.value = 'all';
-        selectedVillageId = 'all';
-      }
-    }
-
-    function onDistrictChange() {
-      selectedDistrict = document.getElementById('districtSelect').value;
-      selectedSubdistrict = 'all';
-      selectedVillageId = 'all';
-
-      if (selectedDistrict === 'all') {
-        resetToOverview();
-        return;
-      }
-
-      updateSubdistrictDropdown(selectedDistrict);
-      updateFilterDropdownOptions();
-      updateVillageDropdown(selectedDistrict, 'all');
-
-      selectDistrictOnBothMaps(selectedDistrict, false, true);
-    }
-
-    function onSubdistrictChange() {
-      const rawVal = document.getElementById('subdistrictSelect').value;
-      selectedVillageId = 'all';
-
-      if (rawVal === 'all') {
-        selectedSubdistrict = 'all';
-        if (selectedDistrict !== 'all') {
-          updateVillageDropdown(selectedDistrict, 'all');
-          highlightAndZoomSubdistrict('all', true);
-        } else {
-          resetToOverview();
-        }
-        return;
-      }
-
-      if (rawVal.includes('|')) {
-        const parts = rawVal.split('|');
-        selectedDistrict = parts[0];
-        selectedSubdistrict = parts[1];
-
-        document.getElementById('districtSelect').value = selectedDistrict;
-        selectDistrictOnBothMaps(selectedDistrict, false, false);
-
-        updateSubdistrictDropdown(selectedDistrict);
-        document.getElementById('subdistrictSelect').value = selectedSubdistrict;
-      } else {
-        selectedSubdistrict = rawVal;
-      }
-
-      updateFilterDropdownOptions();
-      updateVillageDropdown(selectedDistrict, selectedSubdistrict);
-      highlightAndZoomSubdistrict(selectedSubdistrict, true);
+      selectedVillage = 'all';
+      renderVillageDots();
+      highlightAndZoomSubdistrict(selectedSubdistrict);
     }
 
     function onVillageChange() {
-      selectedVillageId = document.getElementById('villageSelect').value;
-      if (selectedVillageId === 'all') {
+      selectedVillage = document.getElementById('villageSelect').value;
+      if (selectedVillage === 'all') {
         if (activePulseMarker) { mapRisk.removeLayer(activePulseMarker); activePulseMarker = null; }
-        if (activePulseMarkerBudget) { mapBudget.removeLayer(activePulseMarkerBudget); activePulseMarkerBudget = null; }
         renderVillageDots();
-
-        if (selectedSubdistrict !== 'all') {
-          highlightAndZoomSubdistrict(selectedSubdistrict, true);
-        } else if (selectedDistrict !== 'all') {
-          selectDistrictOnBothMaps(selectedDistrict, false, true);
-        } else {
-          resetToOverview();
-        }
         return;
       }
 
-      const vFeat = VILLAGES_DATA.features.find(f => f.properties.id == selectedVillageId);
+      // Find village feature
+      const vFeat = VILLAGES_DATA.features.find(f => {
+        const p = f.properties;
+        const matchD = (selectedDistrict === 'all' || p.district === selectedDistrict);
+        const matchS = (selectedSubdistrict === 'all' || p.subdistrict === selectedSubdistrict);
+        return matchD && matchS && p.village === selectedVillage;
+      });
+
       if (vFeat) {
-        const p = vFeat.properties;
         const [lng, lat] = vFeat.geometry.coordinates;
-
-        // Reset conflicting filters so the selected village is 100% visible
-        if (selectedRiskLevel !== 'all' || selectedScoreRange !== 'all') {
-          selectedRiskLevel = 'all';
-          selectedScoreRange = 'all';
-          document.getElementById('riskLevelSelect').value = 'all';
-          document.getElementById('totalScoreSelect').value = 'all';
-          updateFilterDropdownOptions();
-        }
-
-        // 1. Sync district if needed
-        if (selectedDistrict !== p.district) {
-          selectedDistrict = p.district;
-          document.getElementById('districtSelect').value = p.district;
-          renderSubdistrictsForDistrict(p.district);
-          updateSubdistrictDropdown(p.district);
-        }
-
-        // 2. Sync subdistrict if needed
-        selectedSubdistrict = p.subdistrict;
-        document.getElementById('subdistrictSelect').value = p.subdistrict;
-        highlightSubdistrictBoundaryOnly(p.subdistrict);
-
-        // 3. Keep village selection locked
-        updateVillageDropdown(selectedDistrict, selectedSubdistrict);
-        document.getElementById('villageSelect').value = p.id;
-
-        // 4. Smoothly pan & zoom both maps together
         isSyncing = true;
-        mapRisk.setView([lat, lng], 15);
-        mapBudget.setView([lat, lng], 15);
+        mapRisk.setView([lat, lng], 14);
+        mapBudget.setView([lat, lng], 14);
         isSyncing = false;
 
-        // 5. Synchronized pulsing beacons on both maps
+        // Add pulsing beacon to village
         if (activePulseMarker) mapRisk.removeLayer(activePulseMarker);
-        if (activePulseMarkerBudget) mapBudget.removeLayer(activePulseMarkerBudget);
-
         activePulseMarker = L.circleMarker([lat, lng], {
-          radius: 14,
+          radius: 12,
           fillColor: '#1a73e8',
           color: '#1a73e8',
-          weight: 3.5,
-          opacity: 0.9,
-          fillOpacity: 0.45,
-          className: 'pulse-circle-marker'
+          weight: 3,
+          opacity: 0.8,
+          fillOpacity: 0.35
         }).addTo(mapRisk);
 
-        activePulseMarkerBudget = L.circleMarker([lat, lng], {
-          radius: 14,
-          fillColor: '#0d47a1',
-          color: '#0d47a1',
-          weight: 3.5,
-          opacity: 0.9,
-          fillOpacity: 0.45,
-          className: 'pulse-circle-marker'
-        }).addTo(mapBudget);
-
-        renderVillageDots();
-        document.getElementById('floatingBackBar').style.display = 'block';
-        showVillageDetails(p);
+        showVillageDetails(vFeat.properties);
       }
     }
 
@@ -1223,80 +724,29 @@
       document.getElementById('risk-map-title').textContent = pillarTitles[selectedPillar];
       updatePolygonColors();
       updateOnMapLabels();
-      updateFilterDropdownOptions();
-      updateVillageDropdown(selectedDistrict, selectedSubdistrict);
       renderVillageDots();
     }
 
     function onFilterUpdate() {
       selectedRiskLevel = document.getElementById('riskLevelSelect').value;
-      selectedScoreRange = document.getElementById('totalScoreSelect').value;
-      updateVillageDropdown(selectedDistrict, selectedSubdistrict);
       renderVillageDots();
     }
 
-    /* ========================================================= */
-    /* NATURAL PREFIX-CLEANING SEARCH LOGIC                      */
-    /* ========================================================= */
     function onSearchInput() {
-      const rawQuery = document.getElementById('searchInput').value.trim();
-      if (!rawQuery) {
+      const query = document.getElementById('searchInput').value.trim().toLowerCase();
+      if (!query) {
         renderVillageDots();
         return;
       }
 
-      const query = rawQuery.toLowerCase();
-      // Strip common prefixes: อำเภอ, ตำบล, หมู่บ้าน, บ้าน, หมู่ที่ [0-9], หมู่ [0-9], ม.[0-9], อ., ต., ม., บ.
-      const cleanQ = query.replace(/^(อำเภอ|ตำบล|หมู่บ้าน|บ้าน|หมู่ที่\s*\d+|หมู่\s*\d+|ม\.\s*\d+|อ\.|ต\.|ม\.|บ\.)\s*/i, '').trim();
-
-      if (!cleanQ) {
-        renderVillageDots();
-        return;
-      }
-
-      // 1. Try matching District
-      const matchedDist = DISTRICTS_DATA.features.find(f => {
-        const d = (f.properties.amp_th || '').toLowerCase();
-        return d === cleanQ || d === query || d.startsWith(cleanQ);
-      });
+      // Check if search matches district
+      const matchedDist = DISTRICTS_DATA.features.find(f => (f.properties.amp_th || '').toLowerCase().includes(query));
       if (matchedDist) {
         document.getElementById('districtSelect').value = matchedDist.properties.amp_th;
         onDistrictChange();
         return;
       }
 
-      // 2. Try matching Subdistrict
-      const matchedSub = SUBDISTRICTS_DATA.features.find(f => {
-        const s = (f.properties.tam_th || '').toLowerCase();
-        return s === cleanQ || s === query || s.startsWith(cleanQ);
-      });
-      if (matchedSub) {
-        const amp = matchedSub.properties.amp_th;
-        const tam = matchedSub.properties.tam_th;
-        selectedDistrict = amp;
-        selectedSubdistrict = tam;
-        document.getElementById('districtSelect').value = amp;
-        selectDistrictOnBothMaps(amp, false, false);
-        updateSubdistrictDropdown(amp);
-        document.getElementById('subdistrictSelect').value = tam;
-        updateVillageDropdown(amp, tam);
-        highlightAndZoomSubdistrict(tam, true);
-        return;
-      }
-
-      // 3. Try matching single/exact village
-      const matchedVils = VILLAGES_DATA.features.filter(f => {
-        const v = (f.properties.village || '').toLowerCase();
-        return v === cleanQ || v === query;
-      });
-      if (matchedVils.length === 1) {
-        const targetVil = matchedVils[0];
-        document.getElementById('villageSelect').value = targetVil.properties.id;
-        onVillageChange();
-        return;
-      }
-
-      // 4. Otherwise, filter village dots in real-time
       renderVillageDots();
     }
 
@@ -1330,20 +780,17 @@
       return '#e3f2fd';
     }
 
-    /* ========================================================= */
-    /* RENDER ALL BASE DISTRICT GIS LAYERS                       */
-    /* ========================================================= */
     function renderAllLayers() {
       districtLayersRisk = {};
       districtLayersBudget = {};
 
-      // Left Map District Layers
+      // Left Map District Layers (Real Polygons)
       const distGroupRisk = L.geoJSON(DISTRICTS_DATA, {
         style: (feat) => ({
           fillColor: getDistrictRiskColor(feat.properties),
-          weight: 2.2,
+          weight: 1.5,
           opacity: 0.95,
-          color: '#1e293b',
+          color: '#ffffff',
           fillOpacity: 0.65
         }),
         onEachFeature: (feat, layer) => {
@@ -1361,7 +808,7 @@
 
           layer.on('click', (e) => {
             L.DomEvent.stopPropagation(e);
-            selectDistrictOnBothMaps(name, true, true);
+            selectDistrictOnBothMaps(name);
           });
 
           layer.on('mouseover', () => highlightDistrictHover(name, true));
@@ -1371,13 +818,13 @@
 
       cmBounds = distGroupRisk.getBounds();
 
-      // Right Map District Layers
+      // Right Map District Layers (Real Polygons + Direct Numbers on GIS)
       L.geoJSON(DISTRICTS_DATA, {
         style: (feat) => ({
           fillColor: getDistrictBudgetColor(feat.properties),
-          weight: 2.2,
+          weight: 1.5,
           opacity: 0.95,
-          color: '#1e293b',
+          color: '#ffffff',
           fillOpacity: 0.68
         }),
         onEachFeature: (feat, layer) => {
@@ -1397,7 +844,7 @@
 
           layer.on('click', (e) => {
             L.DomEvent.stopPropagation(e);
-            selectDistrictOnBothMaps(name, true, true);
+            selectDistrictOnBothMaps(name);
           });
 
           layer.on('mouseover', () => highlightDistrictHover(name, true));
@@ -1471,25 +918,12 @@
       }
     }
 
-    /* ========================================================= */
-    /* DISTRICT SELECTION & BI-DIRECTIONAL SYNC                  */
-    /* ========================================================= */
-    function selectDistrictOnBothMaps(name, updateDropdowns = true, doZoom = true) {
+    function selectDistrictOnBothMaps(name) {
       selectedDistrict = name;
       document.getElementById('districtSelect').value = name;
 
+      // Reset village beacon
       if (activePulseMarker) { mapRisk.removeLayer(activePulseMarker); activePulseMarker = null; }
-      if (activePulseMarkerBudget) { mapBudget.removeLayer(activePulseMarkerBudget); activePulseMarkerBudget = null; }
-      if (subdistrictHighlightRisk) { mapRisk.removeLayer(subdistrictHighlightRisk); subdistrictHighlightRisk = null; }
-      if (subdistrictHighlightBudget) { mapBudget.removeLayer(subdistrictHighlightBudget); subdistrictHighlightBudget = null; }
-
-      // Auto populate subdistricts and villages in dropdowns!
-      if (updateDropdowns) {
-        selectedSubdistrict = 'all';
-        selectedVillageId = 'all';
-        updateSubdistrictDropdown(name);
-        updateVillageDropdown(name, 'all');
-      }
 
       // Highlight organic polygon shapes on both sides
       for (const [dName, layer] of Object.entries(districtLayersRisk)) {
@@ -1510,23 +944,17 @@
         });
       }
 
-      // Load subdistrict boundaries inside this district
+      // Load organic subdistrict boundaries inside this district
       renderSubdistrictsForDistrict(name);
 
       if (name !== 'all' && districtLayersRisk[name]) {
         const targetLayer = districtLayersRisk[name];
         const bounds = targetLayer.getBounds();
         
-        if (doZoom) {
-          isSyncing = true;
-          mapRisk.fitBounds(bounds, { padding: [35, 35], animate: true });
-          mapBudget.fitBounds(bounds, { padding: [35, 35], animate: true });
-          isSyncing = false;
-        }
-
-        // Show floating back bar
-        document.getElementById('floatingBackBar').style.display = 'block';
-        document.getElementById('floatingBackText').textContent = 'ย้อนกลับภาพรวม จ.เชียงใหม่';
+        isSyncing = true;
+        mapRisk.fitBounds(bounds, { padding: [35, 35], animate: true });
+        mapBudget.fitBounds(bounds, { padding: [35, 35], animate: true });
+        isSyncing = false;
 
         showDistrictDetails(targetLayer.feature.properties);
       } else {
@@ -1536,21 +964,19 @@
       renderVillageDots();
     }
 
-    let subdistLayersRisk = {}, subdistLayersBudget = {};
     function renderSubdistrictsForDistrict(distName) {
       if (subdistrictGroupRisk) mapRisk.removeLayer(subdistrictGroupRisk);
       if (subdistrictGroupBudget) mapBudget.removeLayer(subdistrictGroupBudget);
-      subdistLayersRisk = {};
-      subdistLayersBudget = {};
 
       if (distName === 'all') return;
 
       const subFeats = SUBDISTRICTS_DATA.features.filter(f => {
         const a = f.properties.amp_th || '';
-        return a === distName || a.includes(distName) || distName.includes(a);
+        return a.includes(distName) || distName.includes(a);
       });
 
       if (subFeats.length > 0) {
+        // Organic subdistrict lines on left map
         subdistrictGroupRisk = L.geoJSON(subFeats, {
           style: {
             color: '#1a73e8',
@@ -1561,30 +987,16 @@
           },
           onEachFeature: (f, l) => {
             const tamName = f.properties.tam_th;
-            subdistLayersRisk[tamName] = l;
             l.bindTooltip(`ต.${tamName}`, { direction: 'center', permanent: false });
             l.on('click', (e) => {
               L.DomEvent.stopPropagation(e);
-              selectedSubdistrict = tamName;
               document.getElementById('subdistrictSelect').value = tamName;
-              updateVillageDropdown(selectedDistrict, tamName);
-              highlightAndZoomSubdistrict(tamName, true);
-            });
-            l.on('mouseover', () => {
-              if (selectedSubdistrict !== tamName) {
-                if (subdistLayersRisk[tamName]) subdistLayersRisk[tamName].setStyle({ fillOpacity: 0.32, weight: 3 });
-                if (subdistLayersBudget[tamName]) subdistLayersBudget[tamName].setStyle({ fillOpacity: 0.32, weight: 3 });
-              }
-            });
-            l.on('mouseout', () => {
-              if (selectedSubdistrict !== tamName) {
-                if (subdistLayersRisk[tamName]) subdistLayersRisk[tamName].setStyle({ fillOpacity: 0.12, weight: 2 });
-                if (subdistLayersBudget[tamName]) subdistLayersBudget[tamName].setStyle({ fillOpacity: 0.12, weight: 2 });
-              }
+              onSubdistrictChange();
             });
           }
         }).addTo(mapRisk);
 
+        // Organic subdistrict lines on right map
         subdistrictGroupBudget = L.geoJSON(subFeats, {
           style: {
             color: '#0d47a1',
@@ -1595,170 +1007,41 @@
           },
           onEachFeature: (f, l) => {
             const tamName = f.properties.tam_th;
-            subdistLayersBudget[tamName] = l;
             l.bindTooltip(`ต.${tamName}`, { direction: 'center', permanent: false });
             l.on('click', (e) => {
               L.DomEvent.stopPropagation(e);
-              selectedSubdistrict = tamName;
               document.getElementById('subdistrictSelect').value = tamName;
-              updateVillageDropdown(selectedDistrict, tamName);
-              highlightAndZoomSubdistrict(tamName, true);
-            });
-            l.on('mouseover', () => {
-              if (selectedSubdistrict !== tamName) {
-                if (subdistLayersRisk[tamName]) subdistLayersRisk[tamName].setStyle({ fillOpacity: 0.32, weight: 3 });
-                if (subdistLayersBudget[tamName]) subdistLayersBudget[tamName].setStyle({ fillOpacity: 0.32, weight: 3 });
-              }
-            });
-            l.on('mouseout', () => {
-              if (selectedSubdistrict !== tamName) {
-                if (subdistLayersRisk[tamName]) subdistLayersRisk[tamName].setStyle({ fillOpacity: 0.12, weight: 2 });
-                if (subdistLayersBudget[tamName]) subdistLayersBudget[tamName].setStyle({ fillOpacity: 0.12, weight: 2 });
-              }
+              onSubdistrictChange();
             });
           }
         }).addTo(mapBudget);
       }
     }
 
-    function highlightSubdistrictBoundaryOnly(tamName) {
-      if (subdistrictHighlightRisk) { mapRisk.removeLayer(subdistrictHighlightRisk); subdistrictHighlightRisk = null; }
-      if (subdistrictHighlightBudget) { mapBudget.removeLayer(subdistrictHighlightBudget); subdistrictHighlightBudget = null; }
-
-      const subFeat = SUBDISTRICTS_DATA.features.find(f => {
-        const matchT = (f.properties.tam_th === tamName || f.properties.tam_en === tamName);
-        const matchA = (selectedDistrict === 'all' || (f.properties.amp_th || '') === selectedDistrict || (f.properties.amp_th || '').includes(selectedDistrict));
-        return matchT && matchA;
-      });
-
-      if (subFeat) {
-        subdistrictHighlightRisk = L.geoJSON(subFeat, {
-          style: {
-            color: '#d93025',
-            weight: 3.5,
-            fillColor: '#d93025',
-            fillOpacity: 0.35
-          }
-        }).addTo(mapRisk);
-
-        subdistrictHighlightBudget = L.geoJSON(subFeat, {
-          style: {
-            color: '#0d47a1',
-            weight: 3.5,
-            fillColor: '#0d47a1',
-            fillOpacity: 0.35
-          }
-        }).addTo(mapBudget);
-      }
-    }
-
-    function updateFilterDropdownOptions() {
-      const riskSelect = document.getElementById('riskLevelSelect');
-      const scoreSelect = document.getElementById('totalScoreSelect');
-      if (!riskSelect || !scoreSelect) return;
-
-      const subset = VILLAGES_DATA.features.filter(f => {
-        const p = f.properties;
-        if (selectedDistrict !== 'all' && p.district !== selectedDistrict) return false;
-        if (selectedSubdistrict !== 'all' && p.subdistrict !== selectedSubdistrict) return false;
-        return true;
-      });
-
-      const totalCount = subset.length;
-      let c_12_15 = 0, c_10_11 = 0, c_8_9 = 0, c_5_7 = 0;
-      let c_high = 0, c_med = 0, c_low = 0;
-
-      subset.forEach(f => {
-        const p = f.properties;
-        const sc = p.total_score || 0;
-        if (sc >= 12) c_12_15++;
-        else if (sc >= 10) c_10_11++;
-        else if (sc >= 8) c_8_9++;
-        else c_5_7++;
-
-        if (selectedPillar !== 'all') {
-          const pScore = p[`${selectedPillar}_score`];
-          if (pScore === 3) c_high++;
-          else if (pScore === 2) c_med++;
-          else c_low++;
-        } else {
-          const hasHigh = (p.p1_score === 3 || p.p2_score === 3 || p.p3_score === 3 || p.p4_score === 3 || p.p5_score === 3);
-          const hasMed = (p.p1_score === 2 || p.p2_score === 2 || p.p3_score === 2 || p.p4_score === 2 || p.p5_score === 2);
-          if (hasHigh || (p.priority && (p.priority.includes('วิกฤติ') || p.priority.includes('เฝ้าระวังสูง')))) {
-            c_high++;
-          } else if (hasMed || (p.priority && p.priority.includes('เฝ้าระวังปานกลาง'))) {
-            c_med++;
-          } else {
-            c_low++;
-          }
-        }
-      });
-
-      const currScore = scoreSelect.value;
-      scoreSelect.innerHTML = `
-        <option value="all">🎯 ทุกช่วงคะแนนรวม (5-15) (${totalCount})</option>
-        <option value="12-15">🚨 วิกฤติสูงมาก (12-15) (${c_12_15})</option>
-        <option value="10-11">🟠 เฝ้าระวังสูง (10-11) (${c_10_11})</option>
-        <option value="8-9">🟡 เฝ้าระวังปานกลาง (8-9) (${c_8_9})</option>
-        <option value="5-7">🟢 ความเสี่ยงต่ำ (5-7) (${c_5_7})</option>
-      `;
-      scoreSelect.value = currScore;
-
-      const currRisk = riskSelect.value;
-      riskSelect.innerHTML = `
-        <option value="all">⚡ ทุกระดับความเสี่ยง (1-3) (${totalCount})</option>
-        <option value="เสี่ยงสูง">🚨 เสี่ยงสูง (คะแนน 3) (${c_high})</option>
-        <option value="เสี่ยงปานกลาง">🟡 เสี่ยงปานกลาง (คะแนน 2) (${c_med})</option>
-        <option value="เสี่ยงน้อย">🟢 เสี่ยงน้อย (คะแนน 1) (${c_low})</option>
-      `;
-      riskSelect.value = currRisk;
-    }
-
-    function highlightAndZoomSubdistrict(tamName, doZoom = true) {
-      if (subdistrictHighlightRisk) { mapRisk.removeLayer(subdistrictHighlightRisk); subdistrictHighlightRisk = null; }
-      if (subdistrictHighlightBudget) { mapBudget.removeLayer(subdistrictHighlightBudget); subdistrictHighlightBudget = null; }
-      if (activePulseMarker) { mapRisk.removeLayer(activePulseMarker); activePulseMarker = null; }
-      if (activePulseMarkerBudget) { mapBudget.removeLayer(activePulseMarkerBudget); activePulseMarkerBudget = null; }
-
-      selectedVillageId = 'all';
-      const vilSel = document.getElementById('villageSelect');
-      if (vilSel) vilSel.value = 'all';
-
+    function highlightAndZoomSubdistrict(tamName) {
       if (tamName === 'all') {
-        selectedSubdistrict = 'all';
-        const subSel = document.getElementById('subdistrictSelect');
-        if (subSel) subSel.value = 'all';
-
-        if (selectedDistrict !== 'all') {
-          updateVillageDropdown(selectedDistrict, 'all');
-          if (districtLayersRisk[selectedDistrict]) {
-            const bounds = districtLayersRisk[selectedDistrict].getBounds();
-            mapRisk.fitBounds(bounds, { padding: [25, 25] });
-            mapBudget.fitBounds(bounds, { padding: [25, 25] });
-            showDistrictDetails(districtLayersRisk[selectedDistrict].feature.properties);
-          }
-        } else {
-          resetToOverview();
-          return;
+        if (selectedDistrict !== 'all' && districtLayersRisk[selectedDistrict]) {
+          const bounds = districtLayersRisk[selectedDistrict].getBounds();
+          mapRisk.fitBounds(bounds, { padding: [25, 25] });
+          mapBudget.fitBounds(bounds, { padding: [25, 25] });
         }
         renderSubdistrictsForDistrict(selectedDistrict);
-        renderVillageDots();
         return;
       }
 
-      selectedSubdistrict = tamName;
-      const subSel = document.getElementById('subdistrictSelect');
-      if (subSel) subSel.value = tamName;
-      updateVillageDropdown(selectedDistrict, tamName);
-
+      // Find the specific subdistrict feature
       const subFeat = SUBDISTRICTS_DATA.features.find(f => {
         const matchT = (f.properties.tam_th === tamName || f.properties.tam_en === tamName);
-        const matchA = (selectedDistrict === 'all' || (f.properties.amp_th || '') === selectedDistrict || (f.properties.amp_th || '').includes(selectedDistrict));
+        const matchA = (selectedDistrict === 'all' || (f.properties.amp_th || '').includes(selectedDistrict));
         return matchT && matchA;
       });
 
       if (subFeat) {
-        subdistrictHighlightRisk = L.geoJSON(subFeat, {
+        if (subdistrictGroupRisk) mapRisk.removeLayer(subdistrictGroupRisk);
+        if (subdistrictGroupBudget) mapBudget.removeLayer(subdistrictGroupBudget);
+
+        // Highlight this specific subdistrict organic polygon on both maps
+        subdistrictGroupRisk = L.geoJSON(subFeat, {
           style: {
             color: '#d93025',
             weight: 3.5,
@@ -1767,7 +1050,7 @@
           }
         }).addTo(mapRisk);
 
-        subdistrictHighlightBudget = L.geoJSON(subFeat, {
+        subdistrictGroupBudget = L.geoJSON(subFeat, {
           style: {
             color: '#0d47a1',
             weight: 3.5,
@@ -1776,109 +1059,43 @@
           }
         }).addTo(mapBudget);
 
-        if (doZoom) {
-          const bounds = subdistrictHighlightRisk.getBounds();
-          isSyncing = true;
-          mapRisk.fitBounds(bounds, { padding: [35, 35], animate: true });
-          mapBudget.fitBounds(bounds, { padding: [35, 35], animate: true });
-          isSyncing = false;
-        }
+        const bounds = subdistrictGroupRisk.getBounds();
+        isSyncing = true;
+        mapRisk.fitBounds(bounds, { padding: [35, 35], animate: true });
+        mapBudget.fitBounds(bounds, { padding: [35, 35], animate: true });
+        isSyncing = false;
 
-        // Show floating back bar
-        document.getElementById('floatingBackBar').style.display = 'block';
-        document.getElementById('floatingBackText').textContent = 'ย้อนกลับภาพรวม จ.เชียงใหม่';
-
-        showSubdistrictDetails(tamName, selectedDistrict);
-      } else {
-        const vils = VILLAGES_DATA.features.filter(f => f.properties.subdistrict === tamName && (selectedDistrict === 'all' || f.properties.district === selectedDistrict));
-        if (vils.length > 0 && doZoom) {
-          const coords = vils.map(f => [f.geometry.coordinates[1], f.geometry.coordinates[0]]);
-          const bounds = L.latLngBounds(coords);
-          isSyncing = true;
-          mapRisk.fitBounds(bounds.pad(0.15), { padding: [35, 35], animate: true });
-          mapBudget.fitBounds(bounds.pad(0.15), { padding: [35, 35], animate: true });
-          isSyncing = false;
-        }
-        document.getElementById('floatingBackBar').style.display = 'block';
+        // Show subdistrict details in smart dock
         showSubdistrictDetails(tamName, selectedDistrict);
       }
-
-      renderVillageDots();
     }
 
-    /* ========================================================= */
-    /* VILLAGE POINT MARKERS & PULSING BEACON                    */
-    /* ========================================================= */
     function renderVillageDots() {
       if (villagePointsLayer) mapRisk.removeLayer(villagePointsLayer);
       if (!showVillages) return;
 
-      const rawQuery = document.getElementById('searchInput').value.trim();
-      const query = rawQuery.toLowerCase();
-      const cleanQ = query.replace(/^(อำเภอ|ตำบล|หมู่บ้าน|บ้าน|อ\.|ต\.|ม\.)\s*/, '').trim();
+      const query = document.getElementById('searchInput').value.trim().toLowerCase();
 
       const filtered = VILLAGES_DATA.features.filter(f => {
         const p = f.properties;
-        // If this specific village is selected, ALWAYS include it!
-        if (selectedVillageId !== 'all' && p.id == selectedVillageId) return true;
-
         if (selectedDistrict !== 'all' && p.district !== selectedDistrict) return false;
         if (selectedSubdistrict !== 'all' && p.subdistrict !== selectedSubdistrict) return false;
+        if (selectedVillage !== 'all' && p.village !== selectedVillage) return false;
 
-        // Risk Level Filter
         if (selectedPillar !== 'all' && selectedRiskLevel !== 'all') {
-          const pScore = p[`${selectedPillar}_score`];
-          if (selectedRiskLevel === 'เสี่ยงสูง' && pScore !== 3) return false;
-          if (selectedRiskLevel === 'เสี่ยงปานกลาง' && pScore !== 2) return false;
-          if (selectedRiskLevel === 'เสี่ยงน้อย' && pScore !== 1) return false;
+          const pText = p[`${selectedPillar}_text`];
+          if (pText !== selectedRiskLevel) return false;
         } else if (selectedRiskLevel !== 'all') {
-          if (selectedRiskLevel === 'เสี่ยงสูง') {
-            const hasHigh = (p.p1_score === 3 || p.p2_score === 3 || p.p3_score === 3 || p.p4_score === 3 || p.p5_score === 3);
-            if (!hasHigh && !p.priority.includes('วิกฤติ') && !p.priority.includes('เฝ้าระวังสูง')) return false;
-          } else if (selectedRiskLevel === 'เสี่ยงปานกลาง') {
-            const hasMed = (p.p1_score === 2 || p.p2_score === 2 || p.p3_score === 2 || p.p4_score === 2 || p.p5_score === 2);
-            if (!hasMed && !p.priority.includes('เฝ้าระวังปานกลาง')) return false;
-          } else if (selectedRiskLevel === 'เสี่ยงน้อย') {
-            const isAllLow = (p.p1_score === 1 && p.p2_score === 1 && p.p3_score === 1 && p.p4_score === 1 && p.p5_score === 1);
-            if (!isAllLow && !p.priority.includes('เสี่ยงต่ำ')) return false;
-          }
-        }
-
-        // Total Score Range Filter
-        if (selectedScoreRange !== 'all') {
-          const sc = p.total_score || 0;
-          if (selectedScoreRange === '12-15' && sc < 12) return false;
-          if (selectedScoreRange === '10-11' && (sc < 10 || sc > 11)) return false;
-          if (selectedScoreRange === '8-9' && (sc < 8 || sc > 9)) return false;
-          if (selectedScoreRange === '5-7' && sc > 7) return false;
+          if (!p.priority.includes(selectedRiskLevel) && p.p3_text !== selectedRiskLevel) return false;
         }
 
         if (query) {
           const full = `${p.village} ${p.subdistrict} ${p.district}`.toLowerCase();
-          if (!full.includes(query) && (!cleanQ || !full.includes(cleanQ))) return false;
+          if (!full.includes(query)) return false;
         }
 
         return true;
       });
-
-      // Update Pin Count on Button
-      const toggleBtn = document.getElementById('btn-toggle-villages');
-      if (toggleBtn) {
-        const textSpan = toggleBtn.querySelector('span:last-child');
-        if (textSpan) textSpan.textContent = `หมุด ${filtered.length.toLocaleString('th-TH')} หมู่บ้าน`;
-      }
-
-      // Update No Match Banner
-      const noMatchBanner = document.getElementById('noMatchBanner');
-      if (noMatchBanner) {
-        if (filtered.length === 0 && (selectedRiskLevel !== 'all' || selectedScoreRange !== 'all' || query)) {
-          noMatchBanner.style.display = 'block';
-          const areaName = selectedSubdistrict !== 'all' ? `ต.${selectedSubdistrict}` : selectedDistrict !== 'all' ? `อ.${selectedDistrict}` : 'จ.เชียงใหม่';
-          noMatchBanner.textContent = `⚠️ ไม่มีหมู่บ้านที่ตรงกับเงื่อนไขใน ${areaName} (ลองปรับระดับความเสี่ยงหรือคะแนนรวม)`;
-        } else {
-          noMatchBanner.style.display = 'none';
-        }
-      }
 
       const markers = filtered.map(f => {
         const p = f.properties;
@@ -1900,66 +1117,10 @@
 
         marker.on('click', (e) => {
           L.DomEvent.stopPropagation(e);
-
-          // Reset conflicting filters so the selected village is 100% visible
-          if (selectedRiskLevel !== 'all' || selectedScoreRange !== 'all') {
-            selectedRiskLevel = 'all';
-            selectedScoreRange = 'all';
-            document.getElementById('riskLevelSelect').value = 'all';
-            document.getElementById('totalScoreSelect').value = 'all';
-            updateFilterDropdownOptions();
-          }
-
-          if (selectedDistrict !== p.district) {
-            selectedDistrict = p.district;
-            document.getElementById('districtSelect').value = p.district;
-            selectDistrictOnBothMaps(p.district, false, false);
-            updateSubdistrictDropdown(p.district);
-          }
-          if (selectedSubdistrict !== p.subdistrict) {
-            selectedSubdistrict = p.subdistrict;
-            document.getElementById('subdistrictSelect').value = p.subdistrict;
-            highlightSubdistrictBoundaryOnly(p.subdistrict);
-            updateVillageDropdown(p.district, p.subdistrict);
-          }
-          selectedVillageId = p.id;
-          document.getElementById('villageSelect').value = p.id;
-
-          // Re-center both maps smoothly to the clicked village
-          isSyncing = true;
-          mapRisk.setView([lat, lng], Math.max(mapRisk.getZoom(), 14));
-          mapBudget.setView([lat, lng], Math.max(mapBudget.getZoom(), 14));
-          isSyncing = false;
-
-          // Add synchronized pulsing beacons on both maps
-          if (activePulseMarker) mapRisk.removeLayer(activePulseMarker);
-          if (activePulseMarkerBudget) mapBudget.removeLayer(activePulseMarkerBudget);
-
-          activePulseMarker = L.circleMarker([lat, lng], {
-            radius: 14,
-            fillColor: '#1a73e8',
-            color: '#1a73e8',
-            weight: 3.5,
-            opacity: 0.9,
-            fillOpacity: 0.45,
-            className: 'pulse-circle-marker'
-          }).addTo(mapRisk);
-
-          activePulseMarkerBudget = L.circleMarker([lat, lng], {
-            radius: 14,
-            fillColor: '#0d47a1',
-            color: '#0d47a1',
-            weight: 3.5,
-            opacity: 0.9,
-            fillOpacity: 0.45,
-            className: 'pulse-circle-marker'
-          }).addTo(mapBudget);
-
-          document.getElementById('floatingBackBar').style.display = 'block';
           showVillageDetails(p);
         });
 
-        marker.bindTooltip(`<b>${p.village}</b> (ต.${p.subdistrict} อ.${p.district})<br>คะแนนรวม: <b>${p.total_score} / 15</b> (${p.priority.split(' ')[0]})`, {
+        marker.bindTooltip(`<b>${p.village}</b> (ต.${p.subdistrict} อ.${p.district})`, {
           direction: 'top',
           offset: [0, -5]
         });
@@ -1985,31 +1146,19 @@
     function resetToOverview() {
       document.getElementById('searchInput').value = '';
       document.getElementById('districtSelect').value = 'all';
+      document.getElementById('subdistrictSelect').innerHTML = '<option value="all">🏘️ ทุกตำบล</option>';
+      document.getElementById('villageSelect').innerHTML = '<option value="all">🏡 ทุกหมู่บ้าน</option>';
       document.getElementById('pillarSelect').value = 'all';
       document.getElementById('riskLevelSelect').value = 'all';
-      document.getElementById('totalScoreSelect').value = 'all';
       selectedDistrict = 'all';
       selectedSubdistrict = 'all';
-      selectedVillageId = 'all';
+      selectedVillage = 'all';
       selectedPillar = 'all';
       selectedRiskLevel = 'all';
-      selectedScoreRange = 'all';
-
-      // Hide floating back bar
-      document.getElementById('floatingBackBar').style.display = 'none';
-      const noMatchBanner = document.getElementById('noMatchBanner');
-      if (noMatchBanner) noMatchBanner.style.display = 'none';
-      updateFilterDropdownOptions();
-
-      updateSubdistrictDropdown('all');
-      updateVillageDropdown('all', 'all');
 
       if (subdistrictGroupRisk) mapRisk.removeLayer(subdistrictGroupRisk);
       if (subdistrictGroupBudget) mapBudget.removeLayer(subdistrictGroupBudget);
-      if (subdistrictHighlightRisk) mapRisk.removeLayer(subdistrictHighlightRisk);
-      if (subdistrictHighlightBudget) mapBudget.removeLayer(subdistrictHighlightBudget);
       if (activePulseMarker) { mapRisk.removeLayer(activePulseMarker); activePulseMarker = null; }
-      if (activePulseMarkerBudget) { mapBudget.removeLayer(activePulseMarkerBudget); activePulseMarkerBudget = null; }
 
       updatePolygonColors();
       updateOnMapLabels();
@@ -2035,14 +1184,14 @@
     }
 
     /* ========================================================= */
-    /* SMART DOCK DETAILS HANDLERS (COMPREHENSIVE SCORE DATA)    */
+    /* SMART DOCK DETAILS HANDLERS                               */
     /* ========================================================= */
     function toggleDockExpand() {
       const dock = document.getElementById('smartDock');
       dock.classList.toggle('expanded');
       const isExp = dock.classList.contains('expanded');
       document.getElementById('expandIcon').textContent = isExp ? 'expand_more' : 'expand_less';
-      document.getElementById('expandText').textContent = isExp ? 'ย่อเก็บ' : 'ดูคะแนน 5 มิติ';
+      document.getElementById('expandText').textContent = isExp ? 'ย่อเก็บ' : 'ดู 5 มิติ';
     }
 
     function closeDock() {
@@ -2053,112 +1202,63 @@
     function showDistrictDetails(p) {
       const dock = document.getElementById('smartDock');
       const ampName = p.amp_th || p.d_name || 'อำเภอ';
-      const budget = (p.total_budget || 0).toLocaleString('th-TH', { minimumFractionDigits: 1 });
+      const budget = (p.total_budget || 0).toLocaleString('th-TH', { maximumFractionDigits: 1 });
       const highRisk = p.high_risk_total || 0;
 
-      // Calculate complete score statistics for this district
-      const distVils = VILLAGES_DATA.features.filter(f => f.properties.district === ampName);
-      const stats = calculateScoreStats(distVils);
-
-      const avgScore = stats ? stats.avgTotal.toFixed(2) : '0.00';
-      const totalHigh = stats ? stats.totalHigh : highRisk;
-      const totalMed = stats ? stats.totalMed : 0;
-      const totalLow = stats ? stats.totalLow : 0;
-
-      document.getElementById('dockAreaTitle').innerHTML = `
-        <div class="dock-breadcrumbs">
-          <span class="bc-link" onclick="event.stopPropagation(); resetToOverview();" title="กลับภาพรวมทั้งจังหวัดเชียงใหม่">📍 เชียงใหม่</span>
-          <span class="bc-sep">❯</span>
-          <span class="bc-curr">🏛️ อ.${ampName}</span>
-        </div>
-      `;
-      document.getElementById('dockPillScore').innerHTML = `⭐ เฉลี่ย ${avgScore}/15`;
-      document.getElementById('dockPillRisk').innerHTML = `🔴 สูง ${totalHigh} | 🟡 กลาง ${totalMed} | 🟢 น้อย ${totalLow}`;
+      document.getElementById('dockAreaTitle').innerHTML = `🏛️ อ.${ampName}`;
       document.getElementById('dockPillBudget').innerHTML = `💰 ${budget} ลบ. (${p.total_projects || 0} โครงการ)`;
-
-      const budgets = [
-        { b: p.budget_p1 || 0, prj: p.proj_p1 || 0 },
-        { b: p.budget_p2 || 0, prj: p.proj_p2 || 0 },
-        { b: p.budget_p3 || 0, prj: p.proj_p3 || 0 },
-        { b: p.budget_p4 || 0, prj: p.proj_p4 || 0 },
-        { b: p.budget_p5 || 0, prj: p.proj_p5 || 0 }
-      ];
-
-      const pillarRows = stats ? stats.pillars.map((pil, idx) => {
-        const bInfo = budgets[idx];
-        const barPct = Math.round((pil.avg / 3) * 100);
-        let barColor = '#34a853';
-        if (pil.avg >= 2.2) barColor = '#d93025';
-        else if (pil.avg >= 1.7) barColor = '#fb8c00';
-
-        return `
-          <tr>
-            <td style="text-align:left; font-weight:600; color:#202124;">${pil.name}</td>
-            <td>
-              <div class="score-bar-wrap">
-                <span style="font-weight:700; width:45px; text-align:right;">${pil.avg.toFixed(2)}/3</span>
-                <div class="score-bar-bg">
-                  <div class="score-bar-fill" style="width:${barPct}%; background:${barColor};"></div>
-                </div>
-              </div>
-            </td>
-            <td><span style="color:#d93025; font-weight:700;">${pil.high}</span></td>
-            <td><span style="color:#f9ab00; font-weight:700;">${pil.med}</span></td>
-            <td><span style="color:#1e8e3e; font-weight:700;">${pil.low}</span></td>
-            <td style="color:#1a73e8; font-weight:700;">${bInfo.b.toFixed(1)} ลบ.</td>
-            <td style="color:#5f6368;">${bInfo.prj} โครงการ</td>
-          </tr>
-        `;
-      }).join('') : '';
+      document.getElementById('dockPillRisk').innerHTML = `🔴 ${highRisk} จุดเสี่ยง (${p.villages || 0} หมู่บ้าน)`;
 
       document.getElementById('dockExpandedBody').innerHTML = `
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; flex-wrap:wrap; gap:8px;">
-          <div>
-            <span style="font-size:0.88rem; font-weight:700; color:#202124;">🏛️ สรุปคะแนนความเสี่ยงและงบประมาณ อ.${ampName}</span>
-            <span style="font-size:0.78rem; color:#5f6368; margin-left:8px;">(จำนวน ${p.villages || distVils.length} หมู่บ้านสำรวจ)</span>
-          </div>
-          <div>
-            <span style="font-size:0.78rem; color:#5f6368;">สถานะจัดสรร:</span>
-            <strong style="font-size:0.82rem; margin-left:4px; color:#1a73e8;">${p.gap_status || '🟢 สมดุลตามเกณฑ์'}</strong>
-          </div>
+        <div style="font-size:0.85rem; margin-bottom:12px;">
+          <span style="color:#5f6368;">สถานะจัดสรรงบประมาณ:</span>
+          <strong style="margin-left:6px; color:#202124;">${p.gap_status || 'ปกติ'}</strong>
         </div>
 
         <div style="display:grid; grid-template-columns: repeat(4, 1fr); gap:10px; background:#f8f9fa; padding:10px 14px; border-radius:12px; margin-bottom:12px; text-align:center;">
           <div>
-            <div style="font-size:0.72rem; color:#5f6368;">คะแนนเฉลี่ยรวม</div>
-            <div style="font-size:1.15rem; font-weight:700; color:#b06000;">${avgScore} / 15</div>
-          </div>
-          <div>
-            <div style="font-size:0.72rem; color:#5f6368;">จุดเสี่ยงสูง (คะแนน 3)</div>
-            <div style="font-size:1.15rem; font-weight:700; color:#d93025;">${totalHigh} จุด</div>
-          </div>
-          <div>
-            <div style="font-size:0.72rem; color:#5f6368;">จุดเสี่ยงปานกลาง (คะแนน 2)</div>
-            <div style="font-size:1.15rem; font-weight:700; color:#f9ab00;">${totalMed} จุด</div>
-          </div>
-          <div>
             <div style="font-size:0.72rem; color:#5f6368;">งบประมาณรวม</div>
-            <div style="font-size:1.15rem; font-weight:700; color:#1a73e8;">${budget} ลบ.</div>
+            <div style="font-size:1.05rem; font-weight:700; color:#1a73e8;">${budget} ลบ.</div>
+          </div>
+          <div>
+            <div style="font-size:0.72rem; color:#5f6368;">โครงการทั้งหมด</div>
+            <div style="font-size:1.05rem; font-weight:700; color:#202124;">${p.total_projects || 0} โครงการ</div>
+          </div>
+          <div>
+            <div style="font-size:0.72rem; color:#5f6368;">จุดเสี่ยงสูง</div>
+            <div style="font-size:1.05rem; font-weight:700; color:#d93025;">${highRisk} จุด</div>
+          </div>
+          <div>
+            <div style="font-size:0.72rem; color:#5f6368;">หมู่บ้านทั้งหมด</div>
+            <div style="font-size:1.05rem; font-weight:700; color:#202124;">${p.villages || 0} หมู่บ้าน</div>
           </div>
         </div>
 
-        <div style="font-size:0.8rem; font-weight:700; color:#3c4043; margin-bottom:4px;">📊 ตารางคะแนนและสถิติความเสี่ยงแยกราย 5 ด้าน:</div>
-        <table class="score-table">
-          <thead>
-            <tr>
-              <th style="text-align:left;">มิติแผนแม่บทน้ำ</th>
-              <th>คะแนนเฉลี่ย (เต็ม 3)</th>
-              <th>🚨 เสี่ยงสูง (3)</th>
-              <th>🟡 ปานกลาง (2)</th>
-              <th>🟢 เสี่ยงน้อย (1)</th>
-              <th>💰 งบประมาณ</th>
-              <th>🏗️ โครงการ</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${pillarRows}
-          </tbody>
-        </table>
+        <div style="border-top:1px solid #e8eaed; padding-top:10px;">
+          <div style="font-weight:700; font-size:0.8rem; margin-bottom:8px; color:#3c4043;">สรุปงบประมาณและจุดเสี่ยง 5 มิติ:</div>
+          <div style="display:grid; grid-template-columns: 1fr 1fr; gap:6px 16px; font-size:0.78rem;">
+            <div style="display:flex; justify-content:space-between;">
+              <span>💧 ด1: อุปโภคบริโภค</span>
+              <strong>${(p.budget_p1 || 0).toFixed(1)} ลบ. (${p.high_p1 || 0} เสี่ยง)</strong>
+            </div>
+            <div style="display:flex; justify-content:space-between;">
+              <span>🌾 ด2: ภาคเกษตร</span>
+              <strong>${(p.budget_p2 || 0).toFixed(1)} ลบ. (${p.high_p2 || 0} เสี่ยง)</strong>
+            </div>
+            <div style="display:flex; justify-content:space-between;">
+              <span>🌊 ด3: น้ำท่วมอุทกภัย</span>
+              <strong>${(p.budget_p3 || 0).toFixed(1)} ลบ. (${p.high_p3 || 0} เสี่ยง)</strong>
+            </div>
+            <div style="display:flex; justify-content:space-between;">
+              <span>🧪 ด4: คุณภาพน้ำ</span>
+              <strong>${(p.budget_p4 || 0).toFixed(1)} ลบ. (${p.high_p4 || 0} เสี่ยง)</strong>
+            </div>
+            <div style="display:flex; justify-content:space-between;">
+              <span>🌲 ด5: ป่าต้นน้ำ</span>
+              <strong>${(p.budget_p5 || 0).toFixed(1)} ลบ. (${p.high_p5 || 0} เสี่ยง)</strong>
+            </div>
+          </div>
+        </div>
       `;
       dock.style.display = 'flex';
     }
@@ -2166,185 +1266,75 @@
     function showSubdistrictDetails(tamName, distName) {
       const dock = document.getElementById('smartDock');
       const vils = VILLAGES_DATA.features.filter(f => f.properties.subdistrict === tamName && (distName === 'all' || f.properties.district === distName));
-      const actualDist = (distName && distName !== 'all') ? distName : (vils[0] ? vils[0].properties.district : selectedDistrict);
-      const stats = calculateScoreStats(vils);
+      const totalV = vils.length;
+      const highV = vils.filter(f => f.properties.priority.includes('วิกฤติ') || f.properties.priority.includes('เฝ้าระวังสูง')).length;
 
-      const avgScore = stats ? stats.avgTotal.toFixed(2) : '0.00';
-      const totalHigh = stats ? stats.totalHigh : 0;
-      const totalMed = stats ? stats.totalMed : 0;
-      const totalLow = stats ? stats.totalLow : 0;
-
-      document.getElementById('dockAreaTitle').innerHTML = `
-        <div class="dock-breadcrumbs">
-          <span class="bc-link" onclick="event.stopPropagation(); resetToOverview();" title="กลับภาพรวมทั้งจังหวัดเชียงใหม่">📍 เชียงใหม่</span>
-          <span class="bc-sep">❯</span>
-          <span class="bc-link" onclick="event.stopPropagation(); selectDistrictOnBothMaps('${actualDist}', true, true);" title="กลับระดับอำเภอ${actualDist}">🏛️ อ.${actualDist}</span>
-          <span class="bc-sep">❯</span>
-          <span class="bc-curr">🏘️ ต.${tamName}</span>
-        </div>
-      `;
-      document.getElementById('dockPillScore').innerHTML = `⭐ เฉลี่ย ${avgScore}/15`;
-      document.getElementById('dockPillRisk').innerHTML = `🔴 สูง ${totalHigh} | 🟡 กลาง ${totalMed} | 🟢 น้อย ${totalLow}`;
-      document.getElementById('dockPillBudget').innerHTML = `🏡 ${vils.length} หมู่บ้าน`;
-
-      const pillarRows = stats ? stats.pillars.map(pil => {
-        const barPct = Math.round((pil.avg / 3) * 100);
-        let barColor = '#34a853';
-        if (pil.avg >= 2.2) barColor = '#d93025';
-        else if (pil.avg >= 1.7) barColor = '#fb8c00';
-
-        return `
-          <tr>
-            <td style="text-align:left; font-weight:600; color:#202124;">${pil.name}</td>
-            <td>
-              <div class="score-bar-wrap">
-                <span style="font-weight:700; width:45px; text-align:right;">${pil.avg.toFixed(2)}/3</span>
-                <div class="score-bar-bg">
-                  <div class="score-bar-fill" style="width:${barPct}%; background:${barColor};"></div>
-                </div>
-              </div>
-            </td>
-            <td><span style="color:#d93025; font-weight:700;">${pil.high}</span></td>
-            <td><span style="color:#f9ab00; font-weight:700;">${pil.med}</span></td>
-            <td><span style="color:#1e8e3e; font-weight:700;">${pil.low}</span></td>
-          </tr>
-        `;
-      }).join('') : '';
+      document.getElementById('dockAreaTitle').innerHTML = `🏘️ ต.${tamName} (อ.${distName})`;
+      document.getElementById('dockPillBudget').innerHTML = `🏡 ${totalV} หมู่บ้าน`;
+      document.getElementById('dockPillRisk').innerHTML = `🔴 ${highV} จุดเสี่ยงสูง`;
 
       document.getElementById('dockExpandedBody').innerHTML = `
-        <div style="font-size:0.86rem; font-weight:700; margin-bottom:8px; color:#202124;">
-          🏘️ สรุปคะแนนตำบล ${tamName} (อำเภอ${actualDist}) | รวม ${vils.length} หมู่บ้าน
+        <div style="font-size:0.85rem; margin-bottom:10px;">
+          พื้นที่ตำบล: <strong>ต.${tamName} อ.${distName}</strong> | จำนวนหมู่บ้านสำรวจทั้งหมด: <strong>${totalV} หมู่บ้าน</strong>
         </div>
-
-        <table class="score-table" style="margin-bottom:12px;">
-          <thead>
-            <tr>
-              <th style="text-align:left;">มิติแผนแม่บทน้ำ</th>
-              <th>คะแนนเฉลี่ย (เต็ม 3)</th>
-              <th>🚨 เสี่ยงสูง (3)</th>
-              <th>🟡 ปานกลาง (2)</th>
-              <th>🟢 เสี่ยงน้อย (1)</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${pillarRows}
-          </tbody>
-        </table>
-
-        <div style="font-size:0.8rem; font-weight:700; color:#3c4043; margin-bottom:6px;">
-          รายชื่อหมู่บ้านในตำบล (คลิกที่ชื่อหมู่บ้านเพื่อเปิดดูคะแนน 5 ด้าน):
+        <div style="font-size:0.8rem; color:#5f6368; margin-bottom:8px;">
+          รายชื่อหมู่บ้านในตำบล:
         </div>
         <div style="display:flex; flex-wrap:wrap; gap:6px; max-height:160px; overflow-y:auto;">
-          ${vils.map(v => {
-            const p = v.properties;
-            let badgeBg = '#e6f4ea', badgeColor = '#137333';
-            if (p.total_score >= 12) { badgeBg = '#fce8e6'; badgeColor = '#c5221f'; }
-            else if (p.total_score >= 10) { badgeBg = '#feefe3'; badgeColor = '#b06000'; }
-            else if (p.total_score >= 8) { badgeBg = '#fef7e0'; badgeColor = '#8c5000'; }
-
-            return `<span onclick="event.stopPropagation(); onSubdistrictVillageBadgeClick('${p.id}');" style="background:${badgeBg}; color:${badgeColor}; padding:4px 10px; border-radius:12px; font-size:0.76rem; font-weight:600; cursor:pointer; border:1px solid rgba(0,0,0,0.06);">
-              ม.${p.village} (${p.total_score}/15 ⭐)
-            </span>`;
-          }).join('')}
+          ${vils.map(v => `<span style="background:#e8f0fe; color:#1a73e8; padding:3px 8px; border-radius:10px; font-size:0.76rem; font-weight:600;">${v.properties.village} (${v.properties.priority.split(' ')[0]})</span>`).join('')}
         </div>
       `;
       dock.style.display = 'flex';
-    }
-
-    function onSubdistrictVillageBadgeClick(vId) {
-      document.getElementById('villageSelect').value = vId;
-      onVillageChange();
     }
 
     function showVillageDetails(p) {
       const dock = document.getElementById('smartDock');
-      document.getElementById('dockAreaTitle').innerHTML = `
-        <div class="dock-breadcrumbs">
-          <span class="bc-link" onclick="event.stopPropagation(); resetToOverview();" title="กลับภาพรวมทั้งจังหวัดเชียงใหม่">📍 เชียงใหม่</span>
-          <span class="bc-sep">❯</span>
-          <span class="bc-link" onclick="event.stopPropagation(); selectDistrictOnBothMaps('${p.district}', true, true);" title="กลับระดับอำเภอ${p.district}">🏛️ อ.${p.district}</span>
-          <span class="bc-sep">❯</span>
-          <span class="bc-link" onclick="event.stopPropagation(); highlightAndZoomSubdistrict('${p.subdistrict}', true);" title="กลับระดับตำบล${p.subdistrict}">🏘️ ต.${p.subdistrict}</span>
-          <span class="bc-sep">❯</span>
-          <span class="bc-curr">🏡 ม.${p.village}</span>
-        </div>
-      `;
-      document.getElementById('dockPillScore').innerHTML = `🎯 รวม ${p.total_score} / 15 คะแนน`;
+      document.getElementById('dockAreaTitle').innerHTML = `🏡 ม.${p.village} (ต.${p.subdistrict} อ.${p.district})`;
+      document.getElementById('dockPillBudget').innerHTML = `คะแนนรวม: ${p.total_score} / 15`;
       document.getElementById('dockPillRisk').innerHTML = `${p.priority}`;
-      document.getElementById('dockPillBudget').innerHTML = `📍 อ.${p.district}`;
 
-      const getPillarCard = (name, score, text) => {
-        let barColor = '#34a853';
-        let badgeBg = '#e6f4ea';
-        let badgeColor = '#137333';
-        if (score === 3) {
-          barColor = '#d93025';
-          badgeBg = '#fce8e6';
-          badgeColor = '#c5221f';
-        } else if (score === 2) {
-          barColor = '#f9ab00';
-          badgeBg = '#fef7e0';
-          badgeColor = '#b06000';
-        }
-
-        const pct = Math.round((score / 3) * 100);
-
-        return `
-          <div style="background:#fff; border:1px solid #dadce0; border-radius:10px; padding:8px 12px;">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
-              <span style="font-weight:600; font-size:0.8rem; color:#202124;">${name}</span>
-              <span style="background:${badgeBg}; color:${badgeColor}; padding:2px 8px; border-radius:8px; font-size:0.72rem; font-weight:700;">
-                ${score} คะแนน (${text})
-              </span>
-            </div>
-            <div class="score-bar-bg" style="height:6px;">
-              <div class="score-bar-fill" style="width:${pct}%; background:${barColor};"></div>
-            </div>
-          </div>
-        `;
+      const getBadge = (text, score) => {
+        if (score === 3) return `<span style="background:#fce8e6; color:#d93025; padding:2px 8px; border-radius:10px; font-weight:600; font-size:0.75rem;">เสี่ยงสูง (3)</span>`;
+        if (score === 2) return `<span style="background:#fef7e0; color:#b06000; padding:2px 8px; border-radius:10px; font-weight:600; font-size:0.75rem;">ปานกลาง (2)</span>`;
+        return `<span style="background:#e6f4ea; color:#137333; padding:2px 8px; border-radius:10px; font-weight:600; font-size:0.75rem;">เสี่ยงน้อย (1)</span>`;
       };
 
       document.getElementById('dockExpandedBody').innerHTML = `
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-          <div>
-            <span style="font-size:0.9rem; font-weight:700; color:#202124;">🏡 ม.${p.village} ตำบล${p.subdistrict} อำเภอ${p.district}</span>
+        <div style="margin-bottom:10px; font-size:0.85rem;">
+          ตำแหน่ง: <strong>หมู่บ้าน${p.village} ตำบล${p.subdistrict} อำเภอ${p.district}</strong>
+        </div>
+        <div style="border-top:1px solid #e8eaed; padding-top:10px;">
+          <div style="font-weight:700; font-size:0.8rem; margin-bottom:8px; color:#3c4043;">คะแนนความเสี่ยง 5 มิติ:</div>
+          <div style="display:grid; grid-template-columns: 1fr 1fr; gap:6px 16px; font-size:0.8rem;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <span>💧 ด1: น้ำอุปโภคบริโภค</span>
+              ${getBadge(p.p1_text, p.p1_score)}
+            </div>
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <span>🌾 ด2: ภาคเกษตร</span>
+              ${getBadge(p.p2_text, p.p2_score)}
+            </div>
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <span>🌊 ด3: น้ำท่วมอุทกภัย</span>
+              ${getBadge(p.p3_text, p.p3_score)}
+            </div>
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <span>🧪 ด4: คุณภาพน้ำ</span>
+              ${getBadge(p.p4_text, p.p4_score)}
+            </div>
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <span>🌲 ด5: ป่าต้นน้ำ</span>
+              ${getBadge(p.p5_text, p.p5_score)}
+            </div>
           </div>
-          <div>
-            <span style="background:#fce8e6; color:#c5221f; padding:3px 10px; border-radius:12px; font-size:0.78rem; font-weight:700;">
-              คะแนนรวม ${p.total_score} / 15 คะแนน
-            </span>
-          </div>
-        </div>
-
-        <div style="font-size:0.8rem; font-weight:700; color:#3c4043; margin-bottom:8px;">
-          รายละเอียดคะแนนความเสี่ยงครบทั้ง 5 มิติ (คะแนน 1-3):
-        </div>
-
-        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px; margin-bottom:10px;">
-          ${getPillarCard('💧 ด้าน 1: น้ำอุปโภคบริโภค', p.p1_score, p.p1_text)}
-          ${getPillarCard('🌾 ด้าน 2: น้ำภาคการผลิต (เกษตร)', p.p2_score, p.p2_text)}
-          ${getPillarCard('🌊 ด้าน 3: น้ำท่วมและอุทกภัย', p.p3_score, p.p3_text)}
-          ${getPillarCard('🧪 ด้าน 4: คุณภาพน้ำและการอนุรักษ์', p.p4_score, p.p4_text)}
-        </div>
-        <div>
-          ${getPillarCard('🌲 ด้าน 5: ฟื้นฟูป่าต้นน้ำดินพังทลาย', p.p5_score, p.p5_text)}
         </div>
       `;
       dock.style.display = 'flex';
+      // Auto expand on village click to show scores immediately
       dock.classList.add('expanded');
       document.getElementById('expandIcon').textContent = 'expand_more';
       document.getElementById('expandText').textContent = 'ย่อเก็บ';
     }
-
-    function toggleNavDropdown(e) {
-      e.stopPropagation();
-      document.getElementById('navDropdownMenu').classList.toggle('show');
-    }
-
-    document.addEventListener('click', () => {
-      const m = document.getElementById('navDropdownMenu');
-      if (m) m.classList.remove('show');
-    });
   </script>
 </body>
 </html>
