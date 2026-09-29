@@ -57,17 +57,26 @@
         </div>
       </div>
 
-      <!-- Navigation Tabs -->
-      <div class="flex items-center bg-slate-100 p-1 rounded-full border border-slate-200 overflow-x-auto text-xs">
-        <button onclick="switchView('view-map')" id="btn-map" class="nav-btn px-4 py-1.5 rounded-full font-semibold transition g-btn-active">
-          📍 แผนที่พิกัดบ้าน (Google Maps)
-        </button>
-        <button onclick="switchView('view-dual')" id="btn-dual" class="nav-btn px-4 py-1.5 rounded-full font-semibold transition text-slate-600 hover:text-slate-900">
-          🔄 แผนที่คู่ (กลุ่มเปราะบาง vs ความเสียหาย)
-        </button>
-        <button onclick="switchView('view-summary')" id="btn-summary" class="nav-btn px-4 py-1.5 rounded-full font-semibold transition text-slate-600 hover:text-slate-900">
-          📊 สรุป 4 เทศบาล & ดาวน์โหลด
-        </button>
+      <!-- Navigation Tabs & Master Plan Switcher -->
+      <div class="flex flex-wrap items-center gap-2">
+        <div class="flex items-center bg-slate-100 p-1 rounded-full border border-slate-200 overflow-x-auto text-xs">
+          <button onclick="switchView('view-map')" id="btn-map" class="nav-btn px-4 py-1.5 rounded-full font-semibold transition g-btn-active">
+            📍 แผนที่พิกัดบ้าน (Google Maps)
+          </button>
+          <button onclick="switchView('view-dual')" id="btn-dual" class="nav-btn px-4 py-1.5 rounded-full font-semibold transition text-slate-600 hover:text-slate-900">
+            🔄 แผนที่คู่ (กลุ่มเปราะบาง vs ความเสียหาย)
+          </button>
+          <button onclick="switchView('view-summary')" id="btn-summary" class="nav-btn px-4 py-1.5 rounded-full font-semibold transition text-slate-600 hover:text-slate-900">
+            📊 สรุป 4 เทศบาล & ดาวน์โหลด
+          </button>
+        </div>
+
+        <a href="ChiangMai_Water_Triple_Gap_GIS_Dashboard.html" class="inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-semibold text-purple-700 bg-purple-50 border border-purple-200 hover:bg-purple-100 transition">
+          <span>⚖️</span> แดชบอร์ดวิเคราะห์ Gap (Triple GIS)
+        </a>
+        <a href="index.html" class="inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-semibold text-blue-700 bg-blue-50 border border-blue-200 hover:bg-blue-100 transition">
+          <span>🗺️</span> แดชบอร์ดแผนแม่บทน้ำ (Dual GIS)
+        </a>
       </div>
 
     </div>

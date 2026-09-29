@@ -72,21 +72,25 @@
 
 ```text
 dataJOB/
-├── index.html                               # หน้าหลัก Web GIS Dashboard (สำหรับ GitHub Pages)
-├── ChiangMai_Water_GIS_Dashboard.html       # Standalone Executive Dashboard
-├── chiangmai_districts_gis.geojson          # ข้อมูลขอบเขตเชิงพื้นที่ 25 อำเภอ
-├── chiangmai_subdistricts_gis.geojson       # ข้อมูลขอบเขตเชิงพื้นที่ 204 ตำบล (Organic Polygons)
-├── chiangmai_villages_gis.geojson           # พิกัดและคะแนนความเสี่ยง 2,200 หมู่บ้าน
-├── dashboard_data.json                      # ฐานข้อมูลสรุปโครงการและงบประมาณ 65-70
-├── build_flawless_drilldown_gis.py          # Python Script สำหรับสร้างและคอมไพล์ Dashboard
+├── index.html                                    # หน้าหลัก Web GIS Dashboard (Dual Synchronized GIS)
+├── ChiangMai_Water_Triple_Gap_GIS_Dashboard.html # หน้าใหม่: 3 แผนที่คู่ขนาน (ความเสี่ยง vs งบประมาณ vs Gap Analysis)
+├── ChiangMai_Water_GIS_Dashboard.html            # Standalone Executive Dual GIS Dashboard
+├── ChiangMai_Water_Dashboard.html                # Standalone Executive Overview & Summary Cards
+├── ChiangMai_Flood_Household_GIS_Dashboard.html  # Standalone Household Flood Points GIS
+├── chiangmai_districts_gis.geojson               # ข้อมูลขอบเขตเชิงพื้นที่ 25 อำเภอ
+├── chiangmai_subdistricts_gis.geojson            # ข้อมูลขอบเขตเชิงพื้นที่ 204 ตำบล (Organic Polygons)
+├── chiangmai_villages_gis.geojson                # พิกัดและคะแนนความเสี่ยง 2,200 หมู่บ้าน
+├── dashboard_data.json                           # ฐานข้อมูลสรุปโครงการและงบประมาณ 65-70
+├── build_triple_gap_gis.py                       # Python Script คอมไพล์หน้า Triple Gap GIS Dashboard
+├── build_flawless_drilldown_gis.py               # Python Script คอมไพล์หน้า Dual GIS Dashboard
 │
-├── ChiangMai_Flood_Household_Package/       # [แยกชุด] แพ็กเกจข้อมูลสำรวจครัวเรือนน้ำท่วม 4,450 ครัวเรือน
-│   ├── index.html                           # Standalone Household Dashboard
+├── ChiangMai_Flood_Household_Package/            # [แยกชุด] แพ็กเกจข้อมูลสำรวจครัวเรือนน้ำท่วม 4,450 ครัวเรือน
+│   ├── index.html                                # Standalone Household Dashboard
 │   ├── Master_ChiangMai_Flood_Households_4450.xlsx
 │   ├── chiangmai_flood_households_gis.geojson
 │   └── QGIS_ChiangMai_Flood_Households.qgz
 │
-└── README.md                                # เอกสารอธิบายโครงการฉบับสมบูรณ์
+└── README.md                                     # เอกสารอธิบายโครงการฉบับสมบูรณ์
 ```
 
 ---
@@ -99,11 +103,12 @@ dataJOB/
 pip install pandas openpyxl shapely
 
 # 2. สั่งคอมไพล์ Web GIS Dashboard
-python3 build_flawless_drilldown_gis.py
+python build_flawless_drilldown_gis.py      # อัปเดตหน้า Dual GIS (index.html)
+python build_triple_gap_gis.py              # อัปเดตหน้า Triple Gap GIS Dashboard
 
 # 3. ตรวจสอบสถานะและ Commit ขึ้น Git
 git add .
-git commit -m "Update Dashboard"
+git commit -m "Add Triple Gap GIS Dashboard"
 git push origin main
 ```
 
